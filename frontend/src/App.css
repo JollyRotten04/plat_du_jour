@@ -1,0 +1,35 @@
+@import "tailwindcss";
+@plugin "flowbite-react/plugin/tailwindcss";
+@source "../.flowbite-react/class-list.json";
+@plugin "flowbite/plugin";
+@source "../node_modules/flowbite";
+
+:root {
+    /* CSS variables */
+  --text: #253829;
+  --selected: #ffffff;
+  --secondary-background: #E4F8E7;
+
+  --spacing-72: 18rem;
+  --spacing-84: 21rem;
+
+  --font-display: 'Poppins', sans-serif;
+}
+
+.default-text {
+  color: var(--text);
+}
+
+.main-background {
+  background-color: var(--text);
+}
+
+.secondary-background {
+  background-color: var(--secondary-background);
+}
+
+.selected-text {
+  color: var(--selected);
+  background-color: var(--text);
+}
+
