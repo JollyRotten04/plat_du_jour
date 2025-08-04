@@ -26,15 +26,18 @@ function App() {
       <div className='flex flex-col h-full w-full overflow-x-hidden'>
 
         <Router>
-          <div className='flex flex-col h-full w-full'>
+          <div className='relative flex flex-col h-full w-full'>
 
+            {/* Header */}
             <Header setterCurrentPage={setterCurrentPage} />
 
             {/* Main Content */}
             {AppRoutes(currentPage)}
 
             {/* Footer Component */}
-            <Footer />
+            <div>
+              <Footer />
+            </div>
           </div>
         </Router>
       </div>
