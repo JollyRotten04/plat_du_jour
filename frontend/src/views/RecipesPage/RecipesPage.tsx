@@ -64,8 +64,6 @@ export default function RecipesPage({ currentPage }: RecipesPageProps) {
 
             if (data.success) {
                 setRecipes(data.data);
-                console.log('Recipes loaded successfully:', data.data);
-                console.log('Total recipes:', data.count);
             } else {
                 throw new Error(data.message || 'Failed to load recipes');
             }
@@ -88,6 +86,12 @@ export default function RecipesPage({ currentPage }: RecipesPageProps) {
     const handleRetry = () => {
         fetchRecipes();
     };
+
+    useEffect(() => {
+        if (recipes.length > 0) {
+            sessionStorage.setItem('recipes', JSON.stringify(recipes));
+        }
+    }, [recipes]);
 
     return (
         <>
@@ -131,9 +135,7 @@ export default function RecipesPage({ currentPage }: RecipesPageProps) {
                     <div className='flex flex-col flex-1 w-full h-fit p-4 sm:landscape:p-6 md:landscape:p-8 gap-4 sm:gap-8 md:gap-12'>
 
                         {/* Green Container Container */}
-                        <div className='w-full p-6 sm:portrait:p-8 md:portrait:p-10 sm:landscape:p-6 md:landscape:p-6 lg:landscape:p-8 main-background portrait:flex-col landscape:flex gap-4 shadow-xl overflow-hidden'>
-                            <Carousel currentPage={currentPage}  />
-                        </div>
+                        <Carousel currentPage={currentPage} />
 
                         {/* Recipes to Inspire Component */}
                         <RecipesToInspire />
