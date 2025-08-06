@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\RecipeController;
+use App\Http\Controllers\ArticlesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,4 +17,14 @@ Route::prefix('recipes')->group(function () {
     Route::post('/', [RecipeController::class, 'store']);
     Route::put('/{id}', [RecipeController::class, 'update']);
     Route::delete('/{id}', [RecipeController::class, 'destroy']);
+});
+
+// Articles API routes
+Route::prefix('articles')->group(function () {
+    Route::get('/load', [ArticlesController::class, 'load']);
+    Route::get('/', [ArticlesController::class, 'index']);
+    Route::get('/{identifier}', [ArticlesController::class, 'show']);
+    Route::post('/', [ArticlesController::class, 'store']);
+    Route::put('/{id}', [ArticlesController::class, 'update']);
+    Route::delete('/{id}', [ArticlesController::class, 'destroy']);
 });

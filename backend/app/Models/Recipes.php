@@ -29,6 +29,7 @@ class Recipes extends Model
         'recipe_review_count',
         'steps',
         'nutritional_value',
+        'recipe_publish_date',
     ];
 
     protected $casts = [
