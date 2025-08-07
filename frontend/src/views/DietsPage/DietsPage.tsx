@@ -2,10 +2,10 @@
 import { useEffect, useState } from 'react';
 import heroImage from '../../assets/heroImage.svg';
 import ChoiceCarousel from '../../components/ChoiceCarousel/ChoiceCarousel';
-import RecipesToInspire from '../../components/RecipesToInspire/RecipesToInspire';
+import RecipesToInspire from '../../components/MoreContent/MoreContents';
 import IngredientsInFridge from '../../components/IngredientsInFridge/IngredientsInFridge';
 
-export default function DietsPage(currentPage: string){
+export default function DietsPage({ currentPage }: { currentPage: string }){
 
     const [parsedRecipes, setParsedRecipes] = useState('');
 

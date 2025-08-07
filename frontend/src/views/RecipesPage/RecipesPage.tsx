@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import heroImage from '../../assets/heroImage.svg';
 import ChoiceCarousel from '../../components/ChoiceCarousel/ChoiceCarousel';
-import RecipesToInspire from '../../components/RecipesToInspire/RecipesToInspire';
+import RecipesToInspire from '../../components/MoreContent/MoreContents';
 import IngredientsInFridge from '../../components/IngredientsInFridge/IngredientsInFridge';
 
 // Types
@@ -33,7 +33,7 @@ import IngredientsInFridge from '../../components/IngredientsInFridge/Ingredient
 //     message: string;
 // }
 
-export default function RecipesPage(currentPage: string) {
+export default function RecipesPage({ currentPage }: { currentPage: string }) {
 
 
     // API call function

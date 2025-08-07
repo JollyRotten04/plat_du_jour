@@ -44,6 +44,7 @@ class ArticlesController extends Controller
                     'article_title' => $article->article_title,
                     'article_excerpt' => $article->article_summary, // Map summary to excerpt
                     'article_author' => $article->article_author,
+                    'article_content' => $article->article_content,
                     'article_category' => $article->article_category,
                     'article_publish_date' => $article->article_published_at,
                     'article_read_time' => $article->article_read_time ?? '5 min read', // Default if not in DB
@@ -52,6 +53,7 @@ class ArticlesController extends Controller
                     'image_path' => $article->article_image_path, // Map correct field name
                     'article_views' => $article->article_views ?? 0, // Default if not in DB
                     'article_rating' => $article->article_rating ?? 0, // Default if not in DB
+                    'review_count' => $article->review_count ?? 0,
                 ];
             });
             
@@ -109,6 +111,7 @@ class ArticlesController extends Controller
                     'article_id' => $article->article_id,
                     'article_title' => $article->article_title,
                     'article_excerpt' => $article->article_summary,
+                    'article_content' => $article->article_content,
                     'article_author' => $article->article_author,
                     'article_category' => $article->article_category,
                     'article_publish_date' => $article->article_published_at,
@@ -117,6 +120,7 @@ class ArticlesController extends Controller
                     'article_slug' => $article->article_slug,
                     'image_path' => $article->article_image_path,
                     'article_views' => $article->article_views ?? 0,
+                    'review_count' => $article->review_count ?? 0,
                 ];
             });
 
@@ -176,6 +180,7 @@ class ArticlesController extends Controller
                 'article_slug' => $article->article_slug,
                 'image_path' => $article->article_image_path,
                 'article_views' => $article->article_views ?? 0,
+                'review_count' => $article->review_count ?? 0,
             ];
 
             return response()->json([
@@ -211,6 +216,7 @@ class ArticlesController extends Controller
                 'article_slug' => 'required|string|max:255|unique:articles,article_slug',
                 'article_image_path' => 'required|string|max:255',
                 'article_views' => 'nullable|integer|min:0',
+                'review_count' => 'integer|min:0',
             ]);
 
             $article = Articles::create($validatedData);
@@ -256,6 +262,7 @@ class ArticlesController extends Controller
                 'article_image_path' => 'sometimes|required|string|max:255',
                 'article_views' => 'nullable|integer|min:0',
                 'article_rating' => 'decimal|min:0',
+                'review_count' => 'integer|min:0',
             ]);
 
             $article->update($validatedData);

@@ -26,6 +26,7 @@ class Articles extends Model
         'article_published_at',
         'article_read_time',      // Added this
         'article_views',          // Added this
+        'review_count',
     ];
 
     protected $casts = [

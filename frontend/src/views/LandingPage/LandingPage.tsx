@@ -1,10 +1,10 @@
 // Components...
 import heroImage from '../../assets/heroImage.svg';
 import Carousel from '../../components/Carousel/Carousel';
-import RecipesToInspire from '../../components/RecipesToInspire/RecipesToInspire';
+import RecipesToInspire from '../../components/MoreContent/MoreContents';
 import IngredientsInFridge from '../../components/IngredientsInFridge/IngredientsInFridge';
 
-export default function LandingPage(currentPage: string) {
+export default function LandingPage({ currentPage }: { currentPage: string }) {
     return(
         <>
             <div className="h-full w-full">

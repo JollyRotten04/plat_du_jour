@@ -1,10 +1,10 @@
 // Imports...
 import heroImage from '../../assets/heroImage.svg';
-import Carousel from '../../components/Carousel/Carousel';
-import RecipesToInspire from '../../components/RecipesToInspire/RecipesToInspire';
+import ChoiceCarousel from '../../components/ChoiceCarousel/ChoiceCarousel';
+import RecipesToInspire from '../../components/MoreContent/MoreContents';
 import IngredientsInFridge from '../../components/IngredientsInFridge/IngredientsInFridge';
 
-export default function ArticlesPage(currentPage:string){
+export default function ArticlesPage({ currentPage }: { currentPage: string }){
     return(
         <>
             <div className="h-full w-full">
@@ -18,9 +18,9 @@ export default function ArticlesPage(currentPage:string){
                     <div className='flex flex-col flex-1 w-full h-fit p-4 sm:landscape:p-6 md:landscape:p-8 gap-4 sm:gap-8 md:gap-12'>
 
                         {/* Green Container Container */}
-                        <div className='w-full p-6 sm:portrait:p-8 md:portrait:p-10 sm:landscape:p-6 md:landscape:p-6 lg:landscape:p-8 main-background portrait:flex-col landscape:flex gap-4 shadow-xl overflow-hidden'>
+                        <div className='w-full p-6 flex flex-col sm:portrait:p-8 md:portrait:p-10 sm:landscape:p-6 md:landscape:p-6 lg:landscape:p-8 main-background portrait:flex-col landscape:flex gap-4 shadow-xl overflow-hidden'>
 
-                            <Carousel currentPage={currentPage} />
+                            <ChoiceCarousel currentPage={currentPage}></ChoiceCarousel>
                         </div>
 
                         {/* Recipes to Inspire Component */}
