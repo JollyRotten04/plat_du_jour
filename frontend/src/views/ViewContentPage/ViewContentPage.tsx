@@ -142,7 +142,7 @@ export default function ViewContentPage({ currentPage }: { currentPage: string }
             <div className="min-h-screen w-full flex justify-center">
 
                 {/* Main Content Container */}
-                <div className="h-full landscape:w-1/2 flex flex-col gap-4">
+                <div className="h-full portrait:w-full portrait:p-6 landscape:w-1/2 flex flex-col gap-4">
                     {/* Back Button */}
                     <button
                         className="h-fit w-fit py-2 px-4 mt-4 text-xl select-none cursor-pointer text-white main-background rounded-lg font-semibold shadow-lg tracking-wider"
@@ -199,7 +199,7 @@ export default function ViewContentPage({ currentPage }: { currentPage: string }
 
                                 <div className="h-16 w-16 rounded-full bg-gray-400"></div>
 
-                                <p className="text-white text-2xl font-bold select-none">{author}</p>
+                                <p className="text-white text-2xl portrait:text-lg font-bold select-none">{author}</p>
                             </div>
 
                             {/* Actions */}

@@ -9,12 +9,18 @@ export default function LoginPage(){
     // Flagger variable to check if login page...
     const [isLogin, setIsLogin] = useState(false);
 
+    // Temporarily hide the content since it's coming soon...
+    const [hide, setHide] = useState(true);
+
 
     return(
         <>
-            <div className="min-h-fit h-full w-full">
-                
-                <div className="relative min-h-fit flex items-center justify-center portrait:h-screen landscape:h-fit lg:landscape:h-screen landscape:pt-8 2xl:landscape:pt-0 w-screen">
+            {/* min-h-fit */}
+            <div className="min-h-screen flex justify-center items-center h-full w-full">
+
+                {!hide ? 
+                <>
+                    <div className="relative min-h-fit flex items-center justify-center portrait:h-screen landscape:h-fit lg:landscape:h-screen landscape:pt-8 2xl:landscape:pt-0 w-screen">
 
                     {/* Hero Image */}
                     <img src={heroImage} draggable='false' alt="Hero" className="select-none relative z-4 h-full w-full object-cover landscape:hidden" />
@@ -123,6 +129,16 @@ export default function LoginPage(){
                         </div>
                     </div>
                 </div>
+                </>
+                
+                :
+                
+                <>
+                    <div className='flex flex-col'>
+                        <p className='text-[3rem] portrait:text-2xl default-text font-bold'>More Coming Soon!</p>
+                        <p className='text-[1.6rem] portrait:text-xl default-text font-semibold text-center'>Stay tuned!</p>
+                    </div>
+                </>}               
             </div>
         </>
     );

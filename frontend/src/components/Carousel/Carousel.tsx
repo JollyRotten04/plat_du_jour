@@ -52,10 +52,10 @@ export default function Carousel({ currentPage}: CarouselProps) {
         <div className="flex flex-col md:flex-row gap-6 w-full h-full">
           {/* Left */}
           <div className="flex flex-col gap-4 md:w-1/2">
-            <p className="text-white font-semibold text-2xl">
+            <p className="text-white font-semibold text-2xl lg:landscape:text-3xl xl:landscape:text-4xl">
               Trusted by 10+ million users
             </p>
-            <div className="relative w-full h-72 md:h-96 rounded-lg bg-gray-200 overflow-hidden">
+            <div className="relative w-full h-72 md:landscape:h-64 lg:landscape:h-96 xl:landscape:h-124 md:h-76 lg:h-96 rounded-lg bg-gray-200 overflow-hidden">
               {images.map((src, index) => (
                 <div
                   key={index}
@@ -75,17 +75,17 @@ export default function Carousel({ currentPage}: CarouselProps) {
           </div>
 
           {/* Right */}
-          <div className="relative flex flex-col gap-4 md:w-1/2 py-8">
-            <img src={QuoteIcon} className="h-6 absolute top-0 left-0" alt="" />
-            <p className="text-white font-semibold text-2xl">
+          <div className="relative flex flex-col justify-center gap-4 md:w-1/2 py-8 landscape:px-16">
+            <img src={QuoteIcon} className="h-6 landscape:h-10 absolute top-0 left-0 landscape:top-10" alt="" />
+            <p className="text-white font-semibold text-2xl lg:landscape:text-3xl xl:landscape:text-4xl">
               {titleTexts[homeIndex]}
             </p>
-            <p className="text-white text-xl leading-relaxed">
+            <p className="text-white text-xl lg:landscape:text-xl xl:landscape:text-2xl leading-relaxed">
               {descriptionTexts[homeIndex]}
             </p>
             <img
               src={QuoteIcon}
-              className="h-6 absolute bottom-0 right-0 rotate-180"
+              className="h-6 landscape:h-10 absolute bottom-0 landscape:bottom-10 right-0 rotate-180"
               alt=""
             />
           </div>

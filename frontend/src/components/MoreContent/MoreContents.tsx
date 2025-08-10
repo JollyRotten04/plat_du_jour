@@ -225,6 +225,7 @@ export default function DraggableCarousel() {
           <div
             ref={sliderRef}
             className="flex"
+            draggable='false'
             style={{
               gap: `${gapPx}px`,
               transform: `translateX(${clampedOffset}px)`,
@@ -235,6 +236,7 @@ export default function DraggableCarousel() {
           >
             {recipes.map((recipe) => (
               <div
+                draggable='false'
                 key={recipe.recipe_id}
                 className="relative rounded-lg bg-white shadow-lg flex-shrink-0 transition-transform duration-200 hover:scale-105"
                 onClick={(e) => {
@@ -269,7 +271,7 @@ export default function DraggableCarousel() {
                   >
                     <path d="M10 15l-5.878 3.09 1.123-6.545L.49 6.91l6.572-.955L10 0l2.938 5.955 6.572.955-4.755 4.635 1.123 6.545z" />
                   </svg>
-                  <span>{recipe.recipe_rating}</span>
+                  <span className='select-none'>{recipe.recipe_rating}</span>
                   <span className="ml-2 text-gray-500 select-none">({formatReviewCount(recipe.recipe_review_count)})</span>
                 </div>
               </div>

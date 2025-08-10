@@ -16,6 +16,12 @@
   --font-display: 'Poppins', sans-serif;
 }
 
+/* Enable drag-scroll */
+/* .draggable {
+  touch-action: pan-y;
+} */
+
+
 .default-text {
   color: var(--text);
 }
