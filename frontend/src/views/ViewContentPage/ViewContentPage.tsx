@@ -8,23 +8,19 @@ import HeartUnfilled from '../../assets/unfilled-heart.svg';
 import HeartFilled from '../../assets/filled-heart.svg';
 import ReportIcon from '../../assets/report.svg';
 import StarRating from '../../components/StarRating/StarRating';
-import MoreContents from '../../components/MoreContent/MoreContents'
+import MoreContents from '../../components/MoreContent/MoreContents';
 
-export default function ViewContentPage({ currentPage }: { currentPage: string }){
+export default function ViewContentPage({ currentPage }: { currentPage: string }) {
 
-    // Retireve the data sent from the other pages to use in component...
     const { contentType, slug } = useParams();
     const location = useLocation();
     const data = location.state?.data;
-    // console.log("contentType:", contentType);
 
-    // Only proceed if contentType is 'recipes' or 'articles'
     const validContentTypes = ['recipes', 'articles'];
     if (!contentType || !validContentTypes.includes(contentType)) {
         return <p>Invalid content type.</p>;
     }
 
-    // To dynamically access the correct attributes depending if either a recipe or an article is passed
     const fieldMap = {
         articles: {
             title: 'article_title',
@@ -50,7 +46,6 @@ export default function ViewContentPage({ currentPage }: { currentPage: string }
     };
 
     const fields = fieldMap[contentType];
-
     const title = data?.[fields.title];
     const imageFilename = data?.[fields.image];
     const author = data?.[fields.author];
@@ -58,9 +53,8 @@ export default function ViewContentPage({ currentPage }: { currentPage: string }
     const published = data?.[fields.published];
     const rating = data?.[fields.rating];
     const review_count = data?.[fields.review_count];
-    const description = data?.[fields.description]; // For Recipe Description...
+    const description = data?.[fields.description];
 
-    // Determine directory path for the image
     const imageDirectories: Record<string, string> = {
         articles: '/articleImages',
         recipes: '/recipes',
@@ -68,18 +62,12 @@ export default function ViewContentPage({ currentPage }: { currentPage: string }
 
     const imagePath = imageFilename ? `${imageDirectories[contentType]}/${imageFilename}` : undefined;
 
-    useEffect(() => {
-        console.log('Data: ', data);
-    }, [data]);
-
-    // Maps out the number of stars to the rating...
     function renderStars(rating: number) {
         const fullStars = Math.floor(rating);
         const hasHalfStar = rating % 1 >= 0.5;
         const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
 
         const stars = [];
-
         for (let i = 0; i < fullStars; i++) {
             stars.push(
                 <svg key={`full-${i}`} className="w-4 h-4 lg:h-8 lg:w-8 fill-current text-yellow-500" viewBox="0 0 20 20">
@@ -123,27 +111,50 @@ export default function ViewContentPage({ currentPage }: { currentPage: string }
         return count.toString();
     }
 
-    // For formatting date to MMMM/DD/YYYY
     const formattedDate = published ? format(new Date(published), 'MMMM dd, yyyy') : '';
 
-    // To toggle between bookmark and favourite options...
     const [isBookmarked, setIsBookmarked] = useState(false);
     const [isFavorited, setIsFavorited] = useState(false);
 
-    // To go back to the previous page...
+    // 👇 Login state + modal handling
+    const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem("token"));
+    const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+
     const navigate = useNavigate();
     const goBack = () => {
         navigate(`/${contentType}`);
     };
 
+    // Keep login state in sync with localStorage
+    useEffect(() => {
+        const handleStorageChange = () => {
+            setIsLoggedIn(!!localStorage.getItem("token"));
+        };
+
+        window.addEventListener("storage", handleStorageChange);
+        return () => window.removeEventListener("storage", handleStorageChange);
+    }, []);
+
+    // Handler for rating
+    const handleRatingAttempt = () => {
+        if (!isLoggedIn) {
+            setShowLoginPrompt(true);
+        }
+    };
+
+    // Handler for bookmark / favorite
+    const handleProtectedAction = (action: () => void) => {
+        if (!isLoggedIn) {
+            setShowLoginPrompt(true);
+            return;
+        }
+        action();
+    };
+
     return (
         <>
-            {/* Main Container */}
             <div className="min-h-screen w-full flex justify-center">
-
-                {/* Main Content Container */}
                 <div className="h-full portrait:w-full portrait:p-6 landscape:w-1/2 flex flex-col gap-4">
-                    {/* Back Button */}
                     <button
                         className="h-fit w-fit py-2 px-4 mt-4 text-xl select-none cursor-pointer text-white main-background rounded-lg font-semibold shadow-lg tracking-wider"
                         onClick={goBack}
@@ -151,215 +162,179 @@ export default function ViewContentPage({ currentPage }: { currentPage: string }
                         BACK
                     </button>
 
-                    {/* Cover Image */}
                     {imagePath ? (
                         <img src={imagePath} alt={`${contentType} cover`} draggable='false' className="w-full select-none object-cover" />
                     ) : (
                         <p>No image available</p>
                     )}
 
-                    {/* Info Container */}
                     <div className='flex flex-col w-full p-6 sm:portrait:p-8 md:portrait:p-10 sm:landscape:p-6 md:landscape:p-6 lg:landscape:p-8 main-background portrait:flex-col landscape:flex shadow-xl overflow-hidden'>
-
-                        {/* Title */}
                         <p className="text-white text-2xl select-none font-bold">{title}</p>
 
-                        {/* Date Published and Rating */}
                         <div className="flex justify-between">
-
-                            {/* Date Published */}
                             <div className="flex">
-
                                 <p className="text-white text-base select-none font-normal">Date Published: <span className="font-semibold">{formattedDate}</span></p>
                             </div>
-
-                            {/* Rating and Reviews */}
                             <div className="flex flex-col justify-center items-end gap-2">
-
-                                {/* Rating */}
                                 <div className="flex items-center gap-2">
-
                                     <div className="flex lg:gap-1">
                                         {rating && renderStars(parseFloat(rating))}
                                     </div>
-
                                     <span className="text-white font-bold select-none text-2xl">{rating ? parseFloat(rating).toFixed(1) : '-'}</span>
                                 </div>
-
-                                {/* Review Count */}
                                 <p className="text-white text-xl font-normal select-none">{review_count !== undefined ? formatReviewCount(review_count) : '-'} reviews</p>
                             </div>
                         </div>
 
-                        {/* Poster Info and Actions */}
                         <div draggable='false' className="flex select-none justify-between items-center">
-
-                            {/* Poster Info */}
                             <div className="flex items-center gap-2">
-
                                 <div className="h-16 w-16 rounded-full bg-gray-400"></div>
-
                                 <p className="text-white text-2xl portrait:text-lg font-bold select-none">{author}</p>
                             </div>
-
-                            {/* Actions */}
                             <div className="flex gap-2">
-
-                                {/* Bookmark Icon */}
                                 <button
                                     className={`p-1.5 rounded-lg select-none cursor-pointer ${isBookmarked ? 'bg-green-100' : 'bg-gray-300'}`}
-                                    onClick={() => setIsBookmarked(prev => !prev)}>
-                                    <img
-                                        draggable="false"
-                                        src={isBookmarked ? BookmarkFilled : BookmarkUnfilled}
-                                        className="h-10 w-10 select-none cursor-pointer transition-transform duration-150 active:scale-110"
-                                        alt="Bookmark"
-                                    />
+                                    onClick={() => handleProtectedAction(() => setIsBookmarked(prev => !prev))}>
+                                    <img draggable="false" src={isBookmarked ? BookmarkFilled : BookmarkUnfilled} className="h-10 w-10 select-none cursor-pointer transition-transform duration-150 active:scale-110" alt="Bookmark" />
                                 </button>
-
-                                {/* Favourite Icon */}
                                 <button
                                     className={`p-1.5 rounded-lg select-none cursor-pointer ${isFavorited ? 'bg-green-100' : 'bg-gray-300'}`}
-                                    onClick={() => setIsFavorited(prev => !prev)}>
-                                    <img
-                                        draggable="false"
-                                        src={isFavorited ? HeartFilled : HeartUnfilled}
-                                        className="h-10 w-10 select-none cursor-pointer transition-transform duration-150 active:scale-110"
-                                        alt="Favourite"
-                                    />
+                                    onClick={() => handleProtectedAction(() => setIsFavorited(prev => !prev))}>
+                                    <img draggable="false" src={isFavorited ? HeartFilled : HeartUnfilled} className="h-10 w-10 select-none cursor-pointer transition-transform duration-150 active:scale-110" alt="Favourite" />
                                 </button>
-
-                                {/* Report Icon */}
                                 <button className="bg-gray-300 p-1.5 select-none cursor-pointer rounded-lg">
-
                                     <img draggable='false' src={ReportIcon} className="h-10 w-10 select-none cursor-pointer" alt="" />
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    {/* Content Container */}
                     <div draggable='false' className="flex flex-col py-8 gap-6 seelct-none">
                         <div className="flex select-none flex-col gap-8">
-
-                            {/* Conditionally Render Contents of Recipe Page */}
                             {contentType === 'recipes' && (
-                            <>
-
-                                {/* Conditionally render Nutritional Value Content if Recipe */}
-                                <div>
-                                    <p className="text-2xl font-bold text-gray-800 mb-4 border-b border-gray-300 pb-2">
-                                        🥗 Nutritional Information
-                                    </p>
-
-                                    {data?.nutritional_value ? (
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                                            {Object.entries(data.nutritional_value).map(([key, value]) => (
-                                                <div
-                                                    key={key}
-                                                    className="flex flex-col items-center justify-center rounded-xl py-3 px-4 shadow-md hover:shadow-lg bg-[#253829] transition-shadow"
-                                                >
-                                                    <p className="text-sm text-white uppercase tracking-wide">{key}</p>
-                                                    <p className="text-xl font-semibold text-white">{value}</p>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <p className="text-gray-500 text-base italic">No nutritional data available for this recipe.</p>
-                                    )}
-                                </div>
-
-                                {/* Recipe Ingredients */}
-                                {contentType === 'recipes' && data?.recipe_ingredients && (
+                                <>
                                     <div>
-                                        <p className="text-2xl font-bold text-gray-800 mb-4 pb-2">
-                                            🧂 Main Ingredients
+                                        <p className="text-2xl font-bold text-gray-800 mb-4 border-b border-gray-300 pb-2">
+                                            🥗 Nutritional Information
                                         </p>
-
-                                        <ul className="list-disc list-inside space-y-2 text-lg text-gray-800">
-                                            {data.recipe_ingredients
-                                                .split(',')
-                                                .map((ingredient: string, index: number) => (
-                                                    <li key={index} className="capitalize">{ingredient.trim()}</li>
-                                            ))}
-                                        </ul>
+                                        {data?.nutritional_value ? (
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                                {Object.entries(data.nutritional_value).map(([key, value]) => (
+                                                    <div key={key} className="flex flex-col items-center justify-center rounded-xl py-3 px-4 shadow-md hover:shadow-lg bg-[#253829] transition-shadow">
+                                                        <p className="text-sm text-white uppercase tracking-wide">{key}</p>
+                                                        <p className="text-xl font-semibold text-white">{value}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <p className="text-gray-500 text-base italic">No nutritional data available for this recipe.</p>
+                                        )}
                                     </div>
-                                )}
 
-                                {/* Recipe Description */}
-                                <p className="text-black text-xl font-normal">{description}</p>
+                                    {data?.recipe_ingredients && (
+                                        <div>
+                                            <p className="text-2xl font-bold text-gray-800 mb-4 pb-2">🧂 Main Ingredients</p>
+                                            <ul className="list-disc list-inside space-y-2 text-lg text-gray-800">
+                                                {data.recipe_ingredients.split(',').map((ingredient: string, index: number) => (
+                                                    <li key={index} className="capitalize">{ingredient.trim()}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
 
-                                {/* Recipe Steps */}
-                                <p className="text-black text-xl font-semibold">Procedure: </p>
+                                    <p className="text-black text-xl font-normal">{description}</p>
+                                    <p className="text-black text-xl font-semibold">Procedure: </p>
 
-                                {/* Recipe Steps */}
-                                {Array.isArray(data?.steps) && data.steps.length > 0 && (
-                                <div>
-                                    <p className="text-2xl font-bold text-gray-800 mb-4 border-b border-gray-300 pb-2">
-                                    📝 Preparation Steps
-                                    </p>
-
-                                    <ol className="list-decimal list-inside space-y-3 text-lg text-gray-800">
-                                    {data.steps.map((step: string, index: number) => (
-                                        <li key={index}>{step}</li>
-                                    ))}
-                                    </ol>
-                                </div>
-                                )}
-                            </>
-                            
+                                    {Array.isArray(data?.steps) && data.steps.length > 0 && (
+                                        <div>
+                                            <p className="text-2xl font-bold text-gray-800 mb-4 border-b border-gray-300 pb-2">📝 Preparation Steps</p>
+                                            <ol className="list-decimal list-inside space-y-3 text-lg text-gray-800">
+                                                {data.steps.map((step: string, index: number) => (
+                                                    <li key={index}>{step}</li>
+                                                ))}
+                                            </ol>
+                                        </div>
+                                    )}
+                                </>
                             )}
 
-                            {/* Conditionally render Nutritional Value Content if Recipe */}
                             {contentType === 'articles' && (
                                 <>
                                     {typeof content === 'string' && content.length > 0
-                                        ? content
-                                            .split('.')
-                                            .reduce((acc, sentence, index) => {
-                                                const trimmed = sentence.trim();
-                                                if (!trimmed) return acc;
-
-                                                // Group every 2 sentences
-                                                if (index % 2 === 0) {
-                                                    acc.push(trimmed);
-                                                } else {
-                                                    acc[acc.length - 1] += '. ' + trimmed;
-                                                }
-                                                return acc;
-                                            }, [])
-                                            .map((para, idx) => (
-                                                <p key={idx} className="text-black text-xl font-normal mb-4">
-                                                    {para}.
-                                                </p>
-                                            ))
+                                        ? content.split('.').reduce((acc, sentence, index) => {
+                                            const trimmed = sentence.trim();
+                                            if (!trimmed) return acc;
+                                            if (index % 2 === 0) {
+                                                acc.push(trimmed);
+                                            } else {
+                                                acc[acc.length - 1] += '. ' + trimmed;
+                                            }
+                                            return acc;
+                                        }, [] as string[]).map((para, idx) => (
+                                            <p key={idx} className="text-black text-xl font-normal mb-4">{para}.</p>
+                                        ))
                                         : <p>No content available.</p>
                                     }
                                 </>
                             )}
 
                             <hr />
-
                         </div>
 
-                        {/* Rating Container */}
+                        {/* ⭐ Rating always visible, login required to interact */}
                         <div className="flex flex-col mt-12">
-
-                            <p className="text-black select-none font-normal text-xl text-center">Rate this {contentType}:</p>
-
-                            {/* Stars Container */}
+                            <p className="text-black select-none font-normal text-xl text-center">
+                                Rate this {contentType}:
+                            </p>
                             <div className="flex justify-center">
-                                <StarRating contentType={contentType} />
+                                {isLoggedIn ? (
+                                    <StarRating contentType={contentType} disabled={false} className="w-8 h-8" />
+                                ) : (
+                                    <div onClick={handleRatingAttempt} className="flex gap-1 cursor-pointer">
+                                    {[...Array(5)].map((_, i) => (
+                                        <svg
+                                        key={i}
+                                        className="w-8 h-8 fill-current text-gray-300"
+                                        viewBox="0 0 20 20"
+                                        >
+                                        <path d="M10 15l-5.878 3.09 1.123-6.545L.49 6.91l6.572-.955L10 0l2.938 5.955 6.572.955-4.755 4.635 1.123 6.545z" />
+                                        </svg>
+                                    ))}
+                                    </div>
+                                )}
                             </div>
                         </div>
 
-                        {/* More Content */}
                         <div>
                             <MoreContents />
                         </div>
                     </div>
                 </div>
             </div>
+
+            {/* Login Prompt Modal */}
+            {showLoginPrompt && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-80">
+                        <h2 className="text-lg font-semibold mb-4">Login Required</h2>
+                        <p className="mb-4">You must log in to perform this action.</p>
+                        <div className="flex justify-end gap-4">
+                            <button
+                                className="px-4 py-2 rounded-lg bg-gray-300 hover:bg-gray-400"
+                                onClick={() => setShowLoginPrompt(false)}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600"
+                                onClick={() => navigate("/login")}
+                            >
+                                Login
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }

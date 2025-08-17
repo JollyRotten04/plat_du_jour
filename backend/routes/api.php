@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\ArticlesController;
+use App\Http\Controllers\UserAuth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -12,6 +13,7 @@ Route::get('/user', function (Request $request) {
 // Recipe API routes
 Route::prefix('recipes')->group(function () {
     Route::get('/load', [RecipeController::class, 'load']);
+    Route::post('/available', [RecipeController::class, 'fetchAvailable']);
     Route::get('/', [RecipeController::class, 'index']);
     Route::get('/{identifier}', [RecipeController::class, 'show']);
     Route::post('/', [RecipeController::class, 'store']);
@@ -28,3 +30,9 @@ Route::prefix('articles')->group(function () {
     Route::put('/{id}', [ArticlesController::class, 'update']);
     Route::delete('/{id}', [ArticlesController::class, 'destroy']);
 });
+
+// Route to Login
+Route::post('/login', [UserAuth::class, 'login']);
+
+// Route to Login
+Route::post('/signup', [UserAuth::class, 'signup']);

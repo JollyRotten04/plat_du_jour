@@ -14,6 +14,7 @@ import KosherDiet from '../../assets/diets/kosher.svg';
 import MediterraneanDiet from '../../assets/diets/mediterranean.svg';
 import PaleoDiet from '../../assets/diets/paleo.svg';
 import VegetarianDiet from '../../assets/diets/vegetarian.svg';
+import PlusIcon from '../../assets/plus.svg';
 
 // For Meals...
 import Breakfast from '../../assets/mealCategories/breakfast.svg';
@@ -475,6 +476,48 @@ const fetchRecipes = async () => {
     }
   };
 
+  // To add recipe or articles, only works if the user is logged in...
+  // const addContent = async () => {
+
+  //   console.log('Fetching articles');
+  //   try {
+  //     setLoading(true);
+  //     setError(null);
+
+  //     const params = new URLSearchParams();
+
+  //     if (searchQuery.trim()) {
+  //       params.append('search', searchQuery.trim());
+  //     } else if (currentPage === 'Articles' && selectedArticleCategory) {
+  //       params.append('category', selectedArticleCategory);
+  //     }
+
+  //     const url = `http://localhost/api/articles/load?${params.toString()}`;
+  //     const response = await fetch(url, {
+  //       method: 'GET',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         Accept: 'application/json',
+  //       },
+  //     });
+
+  //     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      
+  //     const data: ArticleApiResponse = await response.json();
+  //     if (data.success) {
+  //       setArticles(data.data);
+  //     } else {
+  //       throw new Error(data.message || 'Failed to load articles');
+  //     }
+  //   } catch (err) {
+  //     const message = err instanceof Error ? err.message : 'An unknown error occurred';
+  //     setError(message);
+  //     console.error('Error fetching articles:', message);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   // Update your useEffect to handle articles
   useEffect(() => {
     if (searchQuery.trim()) {
@@ -720,6 +763,14 @@ const fetchRecipes = async () => {
                       </div>
                     </div>
                   ))}
+
+                  {/* Renders Add New Recipe */}
+                  <div draggable='false' className='select-none cursor-pointer w-[320px] min-h-[280px] p-4 border-4 border-white rounded-xl flex flex-col justify-center items-center'>
+
+                    <img draggable='false' src={PlusIcon} className='h-10 w-12' alt="" />
+
+                    <p className='select-none text-white text-xl font-semibold'>Add New Recipe</p>
+                  </div>
                 </div>
               </div>
             </>
@@ -916,6 +967,14 @@ const fetchRecipes = async () => {
                       </div>
                     </div>
                   ))}
+
+                  {/* Renders Add New Recipe */}
+                  <div draggable='false' className='select-none cursor-pointer w-[320px] min-h-[280px] p-4 border-4 border-white rounded-xl flex flex-col justify-center items-center'>
+
+                    <img draggable='false' src={PlusIcon} className='h-10 w-12' alt="" />
+
+                    <p className='select-none text-white text-xl font-semibold'>Add New Recipe</p>
+                  </div>
                 </div>
               </div>
             </>
@@ -949,7 +1008,7 @@ const fetchRecipes = async () => {
               <button
                 type='button'
                 onClick={clearSearch}
-                className="bg-red-500 hover:bg-red-600 text-white font-semibold px-3 py-1 rounded text-sm transition-colors"
+                className="bg-red-500 select-none hover:bg-red-600 text-white font-semibold px-3 py-1 rounded text-sm transition-colors"
               >
                 Clear
               </button>
@@ -958,8 +1017,8 @@ const fetchRecipes = async () => {
 
           {/* Show status when searching or category selected */}
           {(searchQuery.trim() || (selectedArticleCategory && articles.length > 0)) && (
-            <div className="flex justify-between items-center">
-              <p className="text-white">
+            <div draggable='false' className="flex justify-between items-center">
+              <p className="text-white select-none">
                 {searchQuery.trim() && selectedArticleCategory
                   ? `Showing ${selectedArticleCategory} articles matching "${searchQuery}"`
                   : searchQuery.trim() 
@@ -1034,6 +1093,14 @@ const fetchRecipes = async () => {
                     </div>
                   );
                 })}
+
+                {/* Renders Add New Recipe */}
+                <div draggable='false' className='select-none cursor-pointer w-[320px] min-h-[280px] p-4 border-4 border-white rounded-xl flex flex-col justify-center items-center'>
+
+                  <img draggable='false' src={PlusIcon} className='h-10 w-12' alt="" />
+
+                  <p className='select-none text-white text-xl font-semibold'>Add New Recipe</p>
+                </div>
               </div>
             </div>
           )}
@@ -1070,6 +1137,7 @@ const fetchRecipes = async () => {
                 <div
                   ref={recipesSliderRef}
                   className="flex gap-4"
+                  draggable={false}
                   style={{
                     transform: `translateX(${clampedRecipesOffset}px)`,
                     transition: recipesTransitionEnabled ? 'transform 0.3s ease-out' : 'none',
@@ -1082,6 +1150,7 @@ const fetchRecipes = async () => {
                       onClick={() => viewContent('articles', article.article_slug, article)}
                       key={article.article_id}
                       className="relative rounded-lg bg-white shadow-lg flex-shrink-0"
+                      draggable={false}
                       style={{
                         width: '320px',
                         minHeight: '280px',
@@ -1091,31 +1160,39 @@ const fetchRecipes = async () => {
                       <img
                         src={`/articleImages/${article.image_path}`}
                         alt={article.article_title}
-                        className="rounded-t-lg object-cover w-full h-40"
+                        className="rounded-t-lg object-cover w-full h-40 select-none"
                         draggable={false}
                       />
                       <div className="p-4">
-                        <h3 className="text-lg font-semibold">{article.article_title}</h3>
-                        <p className="text-sm text-gray-700 line-clamp-3">
+                        <h3 className="text-lg font-semibold select-none">{article.article_title}</h3>
+                        <p className="text-sm select-none text-gray-700 line-clamp-3">
                           {article.article_excerpt}
                         </p>
                         <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
-                          <span>{article.article_author}</span>
-                          <span>{article.article_read_time}</span>
+                          <span className='select-none'>{article.article_author}</span>
+                          <span className='select-none'>{article.article_read_time}</span>
                         </div>
                       </div>
                       <div className="absolute bottom-2 left-2 text-sm text-gray-600 bg-white bg-opacity-80 rounded px-2 py-1 flex items-center gap-1">
                         <svg
-                          className="w-4 h-4 fill-current text-blue-500"
+                          className="w-4 h-4 select-none fill-current text-blue-500"
                           viewBox="0 0 20 20"
                         >
                           <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
                           <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd"/>
                         </svg>
-                        <span>{article.article_views.toLocaleString()} views</span>
+                        <span className='select-none'>{article.article_views.toLocaleString()} views</span>
                       </div>
                     </div>
                   ))}
+
+                  {/* Renders Add New Article */}
+                  <div draggable='false' className='select-none cursor-pointer w-[320px] min-h-[280px] p-4 border-4 border-white rounded-xl flex flex-col justify-center items-center'>
+
+                    <img draggable='false' src={PlusIcon} className='h-10 w-12' alt="" />
+
+                    <p className='select-none text-white text-xl font-semibold'>Add New Article</p>
+                  </div>
                 </div>
               </div>
             </div>

@@ -14,10 +14,6 @@ class RecipeController extends Controller
     public function load(Request $request)
     {
         try {
-            \Log::info('=== RECIPE FILTER REQUEST START ===');
-            \Log::info('Request Method: ' . $request->method());
-            \Log::info('Request URL: ' . $request->fullUrl());
-            \Log::info('Request Data: ', $request->all());
 
             $recipes = collect();
             $filtersApplied = [];
@@ -90,101 +86,80 @@ class RecipeController extends Controller
         }
     }
 
+    public function fetchAvailable(Request $request)
+{
+    try {
+        $availableIngredients = $request->input('availableIngredients', []);
 
-
-    /**
-     * Get all recipes with pagination and optional filtering
-     */
-    public function index(Request $request)
-    {
-        try {
-            $query = Recipes::query();
-
-            // Search functionality
-            if ($request->has('search') && !empty($request->search)) {
-                $query->search($request->search);
-            }
-
-            // Filter by category
-            if ($request->has('category') && !empty($request->category)) {
-                $query->byCategory($request->category);
-            }
-
-            // Filter by type
-            if ($request->has('type') && !empty($request->type)) {
-                $query->byType($request->type);
-            }
-
-            // Filter by minimum rating
-            if ($request->has('min_rating') && !empty($request->min_rating)) {
-                $query->byMinRating($request->min_rating);
-            }
-
-            // Sorting
-            $sortBy = $request->get('sort_by', 'recipe_name');
-            $sortOrder = $request->get('sort_order', 'asc');
-            $query->orderBy($sortBy, $sortOrder);
-
-            // Pagination
-            $perPage = $request->get('per_page', 10);
-            $recipes = $query->paginate($perPage);
-
-            return response()->json([
-                'success' => true,
-                'data' => $recipes->items(),
-                'pagination' => [
-                    'current_page' => $recipes->currentPage(),
-                    'total_pages' => $recipes->lastPage(),
-                    'per_page' => $recipes->perPage(),
-                    'total_items' => $recipes->total(),
-                    'from' => $recipes->firstItem(),
-                    'to' => $recipes->lastItem(),
-                ],
-                'message' => 'Recipes loaded successfully'
-            ], 200);
-
-        } catch (\Exception $e) {
+        if (!is_array($availableIngredients) || empty($availableIngredients)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error loading recipes: ' . $e->getMessage(),
+                'message' => 'availableIngredients must be a non-empty array',
                 'data' => []
-            ], 500);
+            ], 400);
         }
-    }
 
-    /**
-     * Get a single recipe by ID or slug
-     */
-    public function show($identifier)
-    {
-        try {
-            // Try to find by ID first, then by slug
-            $recipe = Recipes::where('recipe_id', $identifier)
-                          ->orWhere('recipe_slug', $identifier)
-                          ->first();
+        // Normalize input ingredients
+        $availableIngredients = array_map(fn($item) => strtolower(trim($item)), $availableIngredients);
 
-            if (!$recipe) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Recipe not found',
-                    'data' => null
-                ], 404);
+        $recipes = Recipes::all();
+
+        // Helper function: check if $needle is substring of any $haystacks
+        $ingredientMatchesAvailable = function(string $ingredient, array $availableIngredients): bool {
+            foreach ($availableIngredients as $avail) {
+                if (str_contains($ingredient, $avail)) {
+                    return true;
+                }
             }
+            return false;
+        };
 
-            return response()->json([
-                'success' => true,
-                'data' => $recipe,
-                'message' => 'Recipe loaded successfully'
-            ], 200);
+        // Strict matches: every recipe ingredient matches at least one available ingredient substring
+        $strictMatches = $recipes->filter(function ($recipe) use ($availableIngredients, $ingredientMatchesAvailable) {
+            $recipeIngredients = array_map(fn($i) => strtolower(trim($i)), explode(',', $recipe->recipe_ingredients));
+            foreach ($recipeIngredients as $ingredient) {
+                if (!$ingredientMatchesAvailable($ingredient, $availableIngredients)) {
+                    return false;
+                }
+            }
+            return true;
+        });
 
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error loading recipe: ' . $e->getMessage(),
-                'data' => null
-            ], 500);
-        }
+        // Partial matches: at least one recipe ingredient matches available ingredient substrings, excluding strict matches
+        $partialMatches = $recipes->filter(function ($recipe) use ($availableIngredients, $ingredientMatchesAvailable, $strictMatches) {
+            if ($strictMatches->contains($recipe)) {
+                return false;
+            }
+            $recipeIngredients = array_map(fn($i) => strtolower(trim($i)), explode(',', $recipe->recipe_ingredients));
+            foreach ($recipeIngredients as $ingredient) {
+                if ($ingredientMatchesAvailable($ingredient, $availableIngredients)) {
+                    return true;
+                }
+            }
+            return false;
+        });
+
+        $combined = $strictMatches->merge($partialMatches)->values();
+
+        return response()->json([
+            'success' => true,
+            'count' => $combined->count(),
+            'data' => $combined,
+            'message' => 'Filtered recipes loaded successfully',
+            'request_data' => $request->all()
+        ], 200);
+
+    } catch (\Exception $e) {
+        \Log::error('Error in fetchAvailable: ' . $e->getMessage());
+        \Log::error($e->getTraceAsString());
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Error fetching available recipes: ' . $e->getMessage(),
+            'data' => []
+        ], 500);
     }
+}
 
     /**
      * Store a new recipe
