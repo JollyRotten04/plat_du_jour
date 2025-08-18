@@ -1,25 +1,26 @@
+import { useEffect, useRef, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import HamburgerIcon from '../../assets/hamburgerIcon.svg';
-import { Link, useLocation } from 'react-router-dom';
-import { useEffect, useState } from 'react';
 
 type HeaderProps = {
   setterCurrentPage: (value: string) => void;
   loggedIn: boolean;
   setLoggedIn: (value: boolean) => void;
   user?: { username?: string; email?: string };
-  onLogout: () => void; // <-- gets passed from App
+  onLogout: () => void;
 };
 
 export default function Header({
   setterCurrentPage,
   loggedIn,
-  setLoggedIn,
   user,
-  onLogout, // ✅ destructure it here
+  onLogout,
 }: HeaderProps) {
   const location = useLocation();
   const [navOpen, setNavOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [selectedProfileOption, setSelectedProfileOption] = useState<string | null>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const path = location.pathname;
@@ -31,60 +32,75 @@ export default function Header({
     setterCurrentPage(page);
   }, [location.pathname, setterCurrentPage]);
 
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setProfileOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const isActive = (path: string) => location.pathname === path;
 
-  const baseClass =
-    "default-text font-normal text-lg cursor-pointer select-none relative";
-  const activeClass =
-    "selected-text px-2 rounded-sm underline font-normal";
+  const baseClass = "default-text font-normal text-lg cursor-pointer select-none relative";
+  const activeClass = "selected-text px-2 rounded-sm underline font-normal";
 
-  function openNav() {
-    setNavOpen(!navOpen);
-  }
+  // Dropdown option styling
+  const optionBase = "p-2 rounded-md transition-all duration-200 delay-200";
+  const optionActive = "bg-[#2a372d] text-white transition-all duration-200 delay-200"; // ✅ updated highlight style
+
+  // const navigate = useNavigate();
+
+  const profileOptions = [
+    { label: "My Articles", path: "/user/my-articles" },
+    { label: "My Recipes", path: "/user/my-recipes" },
+    { label: "Favorite Articles", path: "/user/articles" },
+    { label: "Favorite Recipes", path: "/user/recipes" },
+  ];
 
   return (
     <header>
       <div className="p-4">
         {/* MOBILE NAV */}
         <div className="landscape:hidden h-full w-full flex justify-end">
-          <button onClick={openNav}>
+          <button onClick={() => setNavOpen(!navOpen)}>
             <img src={HamburgerIcon} className="h-4" alt="Collapse" />
           </button>
 
-          {/* Overlay */}
           <div
-            onClick={openNav}
+            onClick={() => setNavOpen(false)}
             className={`fixed top-0 left-0 h-dvh w-dvw bg-black transition-opacity duration-300 ease-in-out z-50 ${
               navOpen ? "opacity-50 pointer-events-auto" : "opacity-0 pointer-events-none"
             }`}
           />
 
-          {/* Navbar */}
           <div
             className={`fixed top-0 left-0 w-full h-fit p-4 bg-white shadow-md transform transition-transform duration-300 ease-in-out z-60 ${
               navOpen ? "translate-y-0" : "-translate-y-full"
             }`}
           >
             <nav className="flex flex-col gap-2">
-              <Link to="/" onClick={() => setterCurrentPage("Home")} className={`${baseClass} ${isActive("/") ? activeClass : ""}`}>
+              <Link to="/" onClick={() => setNavOpen(false)} className={`${baseClass} ${isActive("/") ? activeClass : ""}`}>
                 Home
               </Link>
-              <Link to="/recipes" onClick={() => setterCurrentPage("Recipes")} className={`${baseClass} ${isActive("/recipes") ? activeClass : ""}`}>
+              <Link to="/recipes" onClick={() => setNavOpen(false)} className={`${baseClass} ${isActive("/recipes") ? activeClass : ""}`}>
                 Recipes
               </Link>
-              <Link to="/diets" onClick={() => setterCurrentPage("Diets")} className={`${baseClass} ${isActive("/diets") ? activeClass : ""}`}>
+              <Link to="/diets" onClick={() => setNavOpen(false)} className={`${baseClass} ${isActive("/diets") ? activeClass : ""}`}>
                 Diets
               </Link>
-              <Link to="/articles" onClick={() => setterCurrentPage("Articles")} className={`${baseClass} ${isActive("/articles") ? activeClass : ""}`}>
+              <Link to="/articles" onClick={() => setNavOpen(false)} className={`${baseClass} ${isActive("/articles") ? activeClass : ""}`}>
                 Articles
               </Link>
 
               {!loggedIn ? (
-                <Link to="/login" onClick={() => setterCurrentPage("Login")} className={`${baseClass} ${isActive("/login") ? activeClass : ""}`}>
+                <Link to="/login" onClick={() => setNavOpen(false)} className={`${baseClass} ${isActive("/login") ? activeClass : ""}`}>
                   Login
                 </Link>
               ) : (
-                <div className="relative">
+                <div className="relative" ref={profileRef}>
                   <button
                     onClick={() => setProfileOpen(!profileOpen)}
                     className={`${baseClass}`}
@@ -101,20 +117,26 @@ export default function Header({
                     }`}
                   >
                     <ul className="flex flex-col p-2 gap-2">
-                      <Link to="/my-articles" className="hover:bg-gray-100 p-2 rounded-md">
-                        My Articles
-                      </Link>
-                      <Link to="/my-recipes" className="hover:bg-gray-100 p-2 rounded-md">
-                        My Recipes
-                      </Link>
-                      <Link to="/favorites/articles" className="hover:bg-gray-100 p-2 rounded-md">
-                        Favorite Articles
-                      </Link>
-                      <Link to="/favorites/recipes" className="hover:bg-gray-100 p-2 rounded-md">
-                        Favorite Recipes
-                      </Link>
+                      {profileOptions.map((opt) => (
+                        <Link
+                          key={opt.path}
+                          to={opt.path}
+                          onClick={() => {
+                            // setProfileOpen(false);
+                            setSelectedProfileOption(opt.path);
+                          }}
+                          className={`${optionBase} ${
+                            location.pathname === opt.path ? optionActive : ""
+                          }`}
+                        >
+                          {opt.label}
+                        </Link>
+                      ))}
                       <button
-                        onClick={onLogout} // ✅ use prop instead of local handleLogout
+                        onClick={() => {
+                          setProfileOpen(false);
+                          onLogout();
+                        }}
                         className="text-red-500 hover:bg-red-50 p-2 rounded-md text-left"
                       >
                         Logout
@@ -130,25 +152,15 @@ export default function Header({
         {/* DESKTOP NAV */}
         <div className="portrait:hidden flex justify-end px-6">
           <nav className="flex gap-8 items-center">
-            <Link to="/" onClick={() => setterCurrentPage("Home")} className={`${baseClass} ${isActive("/") ? activeClass : ""}`}>
-              Home
-            </Link>
-            <Link to="/recipes" onClick={() => setterCurrentPage("Recipes")} className={`${baseClass} ${isActive("/recipes") ? activeClass : ""}`}>
-              Recipes
-            </Link>
-            <Link to="/diets" onClick={() => setterCurrentPage("Diets")} className={`${baseClass} ${isActive("/diets") ? activeClass : ""}`}>
-              Diets
-            </Link>
-            <Link to="/articles" onClick={() => setterCurrentPage("Articles")} className={`${baseClass} ${isActive("/articles") ? activeClass : ""}`}>
-              Articles
-            </Link>
+            <Link to="/" className={`${baseClass} ${isActive("/") ? activeClass : ""}`}>Home</Link>
+            <Link to="/recipes" className={`${baseClass} ${isActive("/recipes") ? activeClass : ""}`}>Recipes</Link>
+            <Link to="/diets" className={`${baseClass} ${isActive("/diets") ? activeClass : ""}`}>Diets</Link>
+            <Link to="/articles" className={`${baseClass} ${isActive("/articles") ? activeClass : ""}`}>Articles</Link>
 
             {!loggedIn ? (
-              <Link to="/login" onClick={() => setterCurrentPage("Login")} className={`${baseClass} ${isActive("/login") ? activeClass : ""}`}>
-                Login
-              </Link>
+              <Link to="/login" className={`${baseClass} ${isActive("/login") ? activeClass : ""}`}>Login</Link>
             ) : (
-              <div className="relative">
+              <div className="relative" ref={profileRef}>
                 <button
                   onClick={() => setProfileOpen(!profileOpen)}
                   className={`${baseClass}`}
@@ -165,20 +177,26 @@ export default function Header({
                   }`}
                 >
                   <ul className="flex flex-col p-2 gap-2">
-                    <Link to="/my-articles" className="hover:bg-gray-100 p-2 rounded-md">
-                      My Articles
-                    </Link>
-                    <Link to="/my-recipes" className="hover:bg-gray-100 p-2 rounded-md">
-                      My Recipes
-                    </Link>
-                    <Link to="/favorites/articles" className="hover:bg-gray-100 p-2 rounded-md">
-                      Favorite Articles
-                    </Link>
-                    <Link to="/favorites/recipes" className="hover:bg-gray-100 p-2 rounded-md">
-                      Favorite Recipes
-                    </Link>
+                    {profileOptions.map((opt) => (
+                      <Link
+                        key={opt.path}
+                        to={opt.path}
+                        onClick={() => {
+                          // setProfileOpen(false);
+                          setSelectedProfileOption(opt.path);
+                        }}
+                        className={`${optionBase} ${
+                          location.pathname === opt.path ? optionActive : ""
+                        }`}
+                      >
+                        {opt.label}
+                      </Link>
+                    ))}
                     <button
-                      onClick={onLogout} // ✅ triggers App modal
+                      onClick={() => {
+                        setProfileOpen(false);
+                        onLogout();
+                      }}
                       className="text-red-500 hover:bg-red-50 p-2 rounded-md text-left"
                     >
                       Logout
