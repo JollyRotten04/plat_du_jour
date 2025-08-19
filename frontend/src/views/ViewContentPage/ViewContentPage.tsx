@@ -21,11 +21,11 @@ export default function ViewContentPage({ currentPage }: { currentPage: string }
         articles: {
             id: "article_id",
             title: "article_title",
-            image: "image_path",
+            image: "article_image_path", // base field
             slug: "article_slug",
             author: "article_author",
             content: "article_content",
-            published: "article_publish_date",
+            published: "article_published_at",
             rating: "article_rating",
             review_count: "review_count",
             description: "", // 👈 prevents destructure error
@@ -45,9 +45,17 @@ export default function ViewContentPage({ currentPage }: { currentPage: string }
     };
 
     const fields = fieldMap[contentType];
+
+    // ✅ normalize image field for articles
+    let imageFilename;
+    if (contentType === "articles") {
+        imageFilename = data?.[fields.image] || data?.["image_path"];
+    } else {
+        imageFilename = data?.[fields.image];
+    }
+
     const contentId = data?.[fields.id];
     const title = data?.[fields.title];
-    const imageFilename = data?.[fields.image];
     const author = data?.[fields.author];
     const content = data?.[fields.content];
     const published = data?.[fields.published];

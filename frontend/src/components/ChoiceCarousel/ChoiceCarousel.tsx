@@ -567,7 +567,6 @@ const fetchRecipes = async () => {
     slug: string,
     data: any
   ) => {
-    console.log('Data from Carousel:', data);
     navigate(`/view-content/${contentType}/${slug}`, { state: { data } });
   };
 
