@@ -440,47 +440,49 @@ const fetchRecipes = async () => {
     message?: string;
   };
 
-  // Add this to your fetchRecipes function to handle articles
-  const fetchArticles = async () => {
+// Add this to your fetchRecipes function to handle articles
+const fetchArticles = async () => {
 
-    console.log('Fetching articles');
-    try {
-      setLoading(true);
-      setError(null);
+  console.log('Fetching articles');
+  try {
+    setLoading(true);
+    setError(null);
 
-      const params = new URLSearchParams();
+    const params = new URLSearchParams();
 
-      if (searchQuery.trim()) {
-        params.append('search', searchQuery.trim());
-      } else if (currentPage === 'Articles' && selectedArticleCategory) {
-        params.append('category', selectedArticleCategory);
-      }
-
-      const url = `http://localhost/api/articles/load?${params.toString()}`;
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-      });
-
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      
-      const data: ArticleApiResponse = await response.json();
-      if (data.success) {
-        setArticles(data.data);
-      } else {
-        throw new Error(data.message || 'Failed to load articles');
-      }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'An unknown error occurred';
-      setError(message);
-      console.error('Error fetching articles:', message);
-    } finally {
-      setLoading(false);
+    if (searchQuery.trim()) {
+      params.append('search', searchQuery.trim());
+    } else if (currentPage === 'Articles' && selectedArticleCategory) {
+      params.append('category', selectedArticleCategory);
     }
-  };
+
+    const url = `${API_BASE_URL}/api/articles/load?${params.toString()}`;
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      credentials: 'include', // <-- added for CORS with credentials
+    });
+
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    
+    const data: ArticleApiResponse = await response.json();
+    if (data.success) {
+      setArticles(data.data);
+    } else {
+      throw new Error(data.message || 'Failed to load articles');
+    }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'An unknown error occurred';
+    setError(message);
+    console.error('Error fetching articles:', message);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   // To add recipe or articles, only works if the user is logged in...
   // const addContent = async () => {
