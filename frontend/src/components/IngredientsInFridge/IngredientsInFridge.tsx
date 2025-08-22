@@ -243,6 +243,7 @@ const fetchRecipes = async () => {
         Accept: 'application/json',
       },
       body: JSON.stringify({ availableIngredients: selectedItems }),
+      credentials: 'include', 
     });
 
     if (!response.ok)

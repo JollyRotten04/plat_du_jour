@@ -112,7 +112,7 @@ export default function ViewContentPage() {
 
     // ⭐ On page load → check if this item is already favourited
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 useEffect(() => {
@@ -129,6 +129,7 @@ useEffect(() => {
             "Content-Type": "application/json",
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
+          credentials: "include", // <-- added for CORS with credentials
         }
       );
 
@@ -167,6 +168,7 @@ const handleFavouriteClick = async () => {
         id: contentId,
         type: contentType,
       }),
+      credentials: "include", // <-- added for CORS with credentials
     });
 
     const result = await response.json();

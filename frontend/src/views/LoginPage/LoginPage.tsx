@@ -87,7 +87,7 @@ const loginSignup = async (e: React.FormEvent<HTMLFormElement>) => {
 
   try {
     const endpoint = isLogin ? 'login' : 'signup';
-    const url = `${API_BASE_URL}/api/${endpoint}`; // <-- updated
+    const url = `${API_BASE_URL}/api/${endpoint}`;
 
     const requestBody = isLogin
       ? { email: formData.email, password: formData.password }
@@ -95,8 +95,12 @@ const loginSignup = async (e: React.FormEvent<HTMLFormElement>) => {
 
     const response = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify(requestBody)
+      headers: { 
+        'Content-Type': 'application/json', 
+        Accept: 'application/json' 
+      },
+      body: JSON.stringify(requestBody),
+      credentials: 'include', // <-- added for CORS with credentials
     });
 
     const data = await response.json();
@@ -133,6 +137,7 @@ const loginSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     setIsLoading(false);
   }
 };
+
 
 
   const handleModeSwitch = () => {

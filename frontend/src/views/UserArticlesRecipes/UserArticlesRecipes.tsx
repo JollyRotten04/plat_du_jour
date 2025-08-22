@@ -66,7 +66,7 @@ export default function UserArticlesRecipes() {
     return { type, category, title, endpoint };
   };
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const fetchData = async (page: number = 1) => {
   const config = getPageConfig();
@@ -93,6 +93,7 @@ const fetchData = async (page: number = 1) => {
         page: page,
         per_page: 12,
       }),
+      credentials: "include", // <-- added for CORS with credentials
     });
 
     const result = await response.json();
@@ -112,6 +113,7 @@ const fetchData = async (page: number = 1) => {
     setLoading(false);
   }
 };
+
 
 
   const handlePageChange = (newPage: number) => {

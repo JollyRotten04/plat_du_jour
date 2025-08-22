@@ -131,6 +131,7 @@ const fetchRecipes = async () => {
         'Content-Type': 'application/json',
         Accept: 'application/json',
       },
+      credentials: 'include', 
     });
 
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
