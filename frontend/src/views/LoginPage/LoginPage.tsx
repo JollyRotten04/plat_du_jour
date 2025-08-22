@@ -75,62 +75,65 @@ export default function LoginPage({ setLoggedIn, setUser }: LoginPageProps) {
     return true;
   };
 
-  const loginSignup = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!validateForm()) return;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-    setIsLoading(true);
-    setError('');
-    setSuccessMessage('');
+const loginSignup = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  if (!validateForm()) return;
 
-    try {
-      const endpoint = isLogin ? 'login' : 'signup';
-      const url = `http://localhost/api/${endpoint}`;
+  setIsLoading(true);
+  setError('');
+  setSuccessMessage('');
 
-      const requestBody = isLogin
-        ? { email: formData.email, password: formData.password }
-        : { username: formData.username, email: formData.email, password: formData.password };
+  try {
+    const endpoint = isLogin ? 'login' : 'signup';
+    const url = `${API_BASE_URL}/api/${endpoint}`; // <-- updated
 
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify(requestBody)
-      });
+    const requestBody = isLogin
+      ? { email: formData.email, password: formData.password }
+      : { username: formData.username, email: formData.email, password: formData.password };
 
-      const data = await response.json();
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify(requestBody)
+    });
 
-      if (!response.ok) {
-        throw new Error(data.message || `HTTP error! status: ${response.status}`);
-      }
+    const data = await response.json();
 
-      setSuccessMessage(isLogin ? 'Login successful!' : 'Account created successfully!');
-
-      // ✅ Save token and user in SAME keys App.tsx expects
-      if (data.token) {
-        localStorage.setItem('token', data.token);
-        setLoggedIn(true);
-      }
-      if (data.user) {
-        localStorage.setItem('storedUser', JSON.stringify(data.user));
-        setUser(data.user); // ✅ update global state
-      }
-
-      // Reset form
-      setFormData({ username: '', email: '', password: '', confirmPassword: '' });
-
-      // Redirect
-      setTimeout(() => {
-        navigate('/');
-      }, 1000);
-
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'An unknown error occurred';
-      setError(message);
-      console.error('Error during authentication:', message);
-    } finally {
-      setIsLoading(false);
+    if (!response.ok) {
+      throw new Error(data.message || `HTTP error! status: ${response.status}`);
     }
-  };
+
+    setSuccessMessage(isLogin ? 'Login successful!' : 'Account created successfully!');
+
+    // ✅ Save token and user in SAME keys App.tsx expects
+    if (data.token) {
+      localStorage.setItem('token', data.token);
+      setLoggedIn(true);
+    }
+    if (data.user) {
+      localStorage.setItem('storedUser', JSON.stringify(data.user));
+      setUser(data.user); // ✅ update global state
+    }
+
+    // Reset form
+    setFormData({ username: '', email: '', password: '', confirmPassword: '' });
+
+    // Redirect
+    setTimeout(() => {
+      navigate('/');
+    }, 1000);
+
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'An unknown error occurred';
+    setError(message);
+    console.error('Error during authentication:', message);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const handleModeSwitch = () => {
     setIsLogin(!isLogin);

@@ -66,50 +66,53 @@ export default function UserArticlesRecipes() {
     return { type, category, title, endpoint };
   };
 
-  const fetchData = async (page: number = 1) => {
-    const config = getPageConfig();
-    setPageTitle(config.title);
-    setLoading(true);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setError("Please log in to view this content");
-        setLoading(false);
-        return;
-      }
+const fetchData = async (page: number = 1) => {
+  const config = getPageConfig();
+  setPageTitle(config.title);
+  setLoading(true);
 
-      const response = await fetch(`http://localhost/api/${config.endpoint}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          type: config.type,
-          category: config.category,
-          page: page,
-          per_page: 12,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (response.ok && result.success) {
-        setItems(result.data || []);
-        setPagination(result.pagination || null);
-        setCurrentPage(page);
-        setError(null);
-      } else {
-        setError(result.message || "Failed to fetch data");
-      }
-    } catch (err) {
-      console.error("Error fetching data:", err);
-      setError("Network error occurred");
-    } finally {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("Please log in to view this content");
       setLoading(false);
+      return;
     }
-  };
+
+    const response = await fetch(`${API_BASE_URL}/api/${config.endpoint}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        type: config.type,
+        category: config.category,
+        page: page,
+        per_page: 12,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (response.ok && result.success) {
+      setItems(result.data || []);
+      setPagination(result.pagination || null);
+      setCurrentPage(page);
+      setError(null);
+    } else {
+      setError(result.message || "Failed to fetch data");
+    }
+  } catch (err) {
+    console.error("Error fetching data:", err);
+    setError("Network error occurred");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handlePageChange = (newPage: number) => {
     if (pagination && newPage >= 1 && newPage <= pagination.last_page) {

@@ -112,68 +112,76 @@ export default function ViewContentPage() {
 
     // ⭐ On page load → check if this item is already favourited
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useEffect(() => {
-        const fetchFavouriteStatus = async () => {
-            if (!isLoggedIn || !contentId) return;
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-            try {
-                const token = localStorage.getItem("token");
-                const response = await fetch(`http://localhost/api/${contentType}/favourite/status/${contentType}/${contentId}`, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-                    },
-                });
+// eslint-disable-next-line react-hooks/rules-of-hooks
+useEffect(() => {
+  const fetchFavouriteStatus = async () => {
+    if (!isLoggedIn || !contentId) return;
 
-                const result = await response.json();
-                if (response.ok && result.success) {
-                    setIsFavorited(result.isFavorited);
-                }
-            } catch (error) {
-                console.error("Error checking favourite status:", error);
-            }
-        };
-
-        fetchFavouriteStatus();
-    }, [isLoggedIn, contentId, contentType]);
-
-    // ⭐ Send favourite request to backend
-    const handleFavouriteClick = async () => {
-        if (!isLoggedIn) {
-            setShowLoginPrompt(true);
-            return;
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `${API_BASE_URL}/api/${contentType}/favourite/status/${contentType}/${contentId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
         }
+      );
 
-        if (!contentId) return;
+      const result = await response.json();
+      if (response.ok && result.success) {
+        setIsFavorited(result.isFavorited);
+      }
+    } catch (error) {
+      console.error("Error checking favourite status:", error);
+    }
+  };
 
-        try {
-            const token = localStorage.getItem("token");
+  fetchFavouriteStatus();
+// eslint-disable-next-line react-hooks/exhaustive-deps
+}, [isLoggedIn, contentId, contentType]);
 
-            const response = await fetch(`http://localhost/api/${contentType}/favourite`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-                },
-                body: JSON.stringify({
-                    id: contentId,
-                    type: contentType,
-                }),
-            });
+// ⭐ Send favourite request to backend
+const handleFavouriteClick = async () => {
+  if (!isLoggedIn) {
+    setShowLoginPrompt(true);
+    return;
+  }
 
-            const result = await response.json();
+  if (!contentId) return;
 
-            if (response.ok && result.success) {
-                // 👇 Toggle instead of always true
-                setIsFavorited((prev) => !prev);
-            } else {
-                console.error(result.message || "Failed to update favourite");
-            }
-        } catch (error) {
-            console.error("Error while sending favourite request:", error);
-        }
-    };
+  try {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(`${API_BASE_URL}/api/${contentType}/favourite`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({
+        id: contentId,
+        type: contentType,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (response.ok && result.success) {
+      // 👇 Toggle instead of always true
+      setIsFavorited((prev) => !prev);
+    } else {
+      console.error(result.message || "Failed to update favourite");
+    }
+  } catch (error) {
+    console.error("Error while sending favourite request:", error);
+  }
+};
+
 
     function renderStars(rating: number) {
         const fullStars = Math.floor(rating);
