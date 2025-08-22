@@ -106,7 +106,9 @@ export default function ChoiceCarousel({ currentPage }: DataProps) {
     setSelectedMeal(null);
   };
 
-  // Fetch recipes with priority-based filtering (only one filter at a time)
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+// Fetch recipes with priority-based filtering (only one filter at a time)
 const fetchRecipes = async () => {
   try {
     setLoading(true);
@@ -122,7 +124,7 @@ const fetchRecipes = async () => {
       params.append('meal_type', selectedMeal);
     }
 
-    const url = `http://localhost/api/recipes/load?${params.toString()}`;
+    const url = `${API_BASE_URL}/api/recipes/load?${params.toString()}`;
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -147,6 +149,7 @@ const fetchRecipes = async () => {
     setLoading(false);
   }
 };
+
 
 
   // Only fetch recipes when a diet is actually selected or when searching

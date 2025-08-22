@@ -224,69 +224,72 @@ export default function IngredientsInFridge() {
   const currentCategory = categories.find((c) => c.name === selectedCategory);
 
   // Fetch recipes from API, sending selectedItems in request body, then sort by ingredient match count
-  const fetchRecipes = async () => {
-    if (selectedItems.length === 0) {
-      setError('Please select at least one ingredient.');
-      setRecipes([]);
-      return;
-    }
-    setLoading(true);
-    setError(null);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-    try {
-      const response = await fetch('http://localhost/api/recipes/available', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({ availableIngredients: selectedItems }),
+const fetchRecipes = async () => {
+  if (selectedItems.length === 0) {
+    setError('Please select at least one ingredient.');
+    setRecipes([]);
+    return;
+  }
+  setLoading(true);
+  setError(null);
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/recipes/available`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({ availableIngredients: selectedItems }),
+    });
+
+    if (!response.ok)
+      throw new Error(`HTTP error! status: ${response.status}`);
+
+    const data: ApiResponse = await response.json();
+
+    if (data.success) {
+      const selectedLower = selectedItems.map((x) => x.toLowerCase());
+
+      // Sort recipes by matching ingredient count descending
+      const sortedRecipes = data.data.sort((a, b) => {
+        const aIngredients = a.recipe_ingredients
+          .toLowerCase()
+          .split(',')
+          .map((x) => x.trim());
+        const bIngredients = b.recipe_ingredients
+          .toLowerCase()
+          .split(',')
+          .map((x) => x.trim());
+
+        const aMatchCount = aIngredients.filter((ing) =>
+          selectedLower.includes(ing)
+        ).length;
+        const bMatchCount = bIngredients.filter((ing) =>
+          selectedLower.includes(ing)
+        ).length;
+
+        return bMatchCount - aMatchCount;
       });
 
-      if (!response.ok)
-        throw new Error(`HTTP error! status: ${response.status}`);
-
-      const data: ApiResponse = await response.json();
-
-      if (data.success) {
-        const selectedLower = selectedItems.map((x) => x.toLowerCase());
-
-        // Sort recipes by matching ingredient count descending
-        const sortedRecipes = data.data.sort((a, b) => {
-          const aIngredients = a.recipe_ingredients
-            .toLowerCase()
-            .split(',')
-            .map((x) => x.trim());
-          const bIngredients = b.recipe_ingredients
-            .toLowerCase()
-            .split(',')
-            .map((x) => x.trim());
-
-          const aMatchCount = aIngredients.filter((ing) =>
-            selectedLower.includes(ing)
-          ).length;
-          const bMatchCount = bIngredients.filter((ing) =>
-            selectedLower.includes(ing)
-          ).length;
-
-          return bMatchCount - aMatchCount;
-        });
-
-        setRecipes(sortedRecipes);
-        setShowRecipes(true); // show recipes view now
-      } else {
-        throw new Error(data.message || 'Failed to load recipes');
-      }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'An unknown error occurred';
-      setError(message);
-      setRecipes([]);
-      setShowRecipes(false);
-      console.error('Error fetching recipes:', message);
-    } finally {
-      setLoading(false);
+      setRecipes(sortedRecipes);
+      setShowRecipes(true); // show recipes view now
+    } else {
+      throw new Error(data.message || 'Failed to load recipes');
     }
-  };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'An unknown error occurred';
+    setError(message);
+    setRecipes([]);
+    setShowRecipes(false);
+    console.error('Error fetching recipes:', message);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   // For navigating to View Content Page with Article Slug
   const navigate = useNavigate();

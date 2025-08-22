@@ -34,29 +34,32 @@ export default function DraggableCarousel() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [selectedRecipe] = useState<Recipe | null>(null);
 
-  const fetchRecipes = async () => {
-    try {
-      const url = `http://localhost/api/recipes/load`;
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-      });
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      const data: ApiResponse = await response.json();
-      if (data.success) {
-        setRecipes(data.data);
-      } else {
-        throw new Error(data.message || 'Failed to load recipes');
-      }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'An unknown error occurred';
-      console.error('Error fetching recipes:', message);
+const fetchRecipes = async () => {
+  try {
+    const url = `${API_BASE_URL}/api/recipes/load`;
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    });
+
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data: ApiResponse = await response.json();
+    if (data.success) {
+      setRecipes(data.data);
+    } else {
+      throw new Error(data.message || 'Failed to load recipes');
     }
-  };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'An unknown error occurred';
+    console.error('Error fetching recipes:', message);
+  }
+};
+
 
   useEffect(() => {
     fetchRecipes();
