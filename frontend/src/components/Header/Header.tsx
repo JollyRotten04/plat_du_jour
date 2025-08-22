@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import HamburgerIcon from '../../assets/hamburgerIcon.svg';
 
 type HeaderProps = {
@@ -19,7 +19,7 @@ export default function Header({
   const location = useLocation();
   const [navOpen, setNavOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [selectedProfileOption, setSelectedProfileOption] = useState<string | null>(null);
+  const [, setSelectedProfileOption] = useState<string | null>(null);
   const profileRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

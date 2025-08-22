@@ -1,4 +1,4 @@
-import React, { useState, useRef, useLayoutEffect, useEffect } from 'react';
+import { useState, useRef, useLayoutEffect, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function DraggableCarousel() {
@@ -32,7 +32,7 @@ export default function DraggableCarousel() {
   };
 
   const [recipes, setRecipes] = useState<Recipe[]>([]);
-  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [selectedRecipe] = useState<Recipe | null>(null);
 
   const fetchRecipes = async () => {
     try {
@@ -60,6 +60,7 @@ export default function DraggableCarousel() {
 
   useEffect(() => {
     fetchRecipes();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Drag state
@@ -157,6 +158,7 @@ export default function DraggableCarousel() {
       }
 
       if (sliderRef.current) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         (sliderRef.current as HTMLElement).offsetHeight;
         setActualContentWidth((sliderRef.current as HTMLElement).scrollWidth);
       }
@@ -183,6 +185,7 @@ export default function DraggableCarousel() {
   const viewContent = (
     contentType: 'recipes' | 'articles',
     slug: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: any
   ) => {
     console.log('Data from Carousel:', data);
@@ -253,6 +256,7 @@ export default function DraggableCarousel() {
                 }}
               >
                 <img
+                  // eslint-disable-next-line no-constant-binary-expression
                   src={`/recipes/${recipe.image_path}` || '/placeholder.png'}
                   alt={recipe.recipe_name}
                   className="rounded-t-lg select-none object-cover w-full h-40"

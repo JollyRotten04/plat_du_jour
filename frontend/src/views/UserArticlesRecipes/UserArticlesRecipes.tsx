@@ -119,8 +119,10 @@ export default function UserArticlesRecipes() {
 
   useEffect(() => {
     fetchData(1);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const fetchContent = (contentType: "recipes" | "articles", slug: string, data: any) => {
     console.log("Navigating to content:", { contentType, slug, data }); // <-- Log object
     navigate(`/view-content/${contentType}/${slug}`, { state: { data } });

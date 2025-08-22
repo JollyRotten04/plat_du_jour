@@ -1,12 +1,12 @@
 import { FaStar } from 'react-icons/fa';
 import { useState } from 'react';
 
-export default function StarRating({ contentType = 'item' }) {
+export default function StarRating() {
     const [rating, setRating] = useState(0);
-    const [hover, setHover] = useState(null);
-    const [clickedStar, setClickedStar] = useState(null);
+    const [hover, setHover] = useState<number | null>(null);
+    const [clickedStar, setClickedStar] = useState<number | null>(null);
 
-    const handleClick = (starValue) => {
+    const handleClick = (starValue: number) => {
         setRating(starValue);
         setClickedStar(starValue);
         // Remove animation after 150ms

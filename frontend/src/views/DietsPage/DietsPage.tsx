@@ -16,6 +16,7 @@ export default function DietsPage({ currentPage }: { currentPage: string }){
             // Use the data
             console.log(parsedRecipes);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
     return(
         <>

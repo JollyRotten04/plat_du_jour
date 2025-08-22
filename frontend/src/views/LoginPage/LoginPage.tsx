@@ -5,10 +5,16 @@ import GoogleLoginIcon from '../../assets/googleLoginIcon.svg';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-export default function LoginPage({ setLoggedIn, setUser }) { // 👈 add setUser prop
+interface LoginPageProps {
+  setLoggedIn: (loggedIn: boolean) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setUser: (user: any) => void; // Replace 'any' with your actual user type if available
+}
+
+export default function LoginPage({ setLoggedIn, setUser }: LoginPageProps) { 
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
-  const [hide, setHide] = useState(false);
+  const [hide] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -20,7 +26,7 @@ export default function LoginPage({ setLoggedIn, setUser }) { // 👈 add setUse
     confirmPassword: ''
   });
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -69,7 +75,7 @@ export default function LoginPage({ setLoggedIn, setUser }) { // 👈 add setUse
     return true;
   };
 
-  const loginSignup = async (e) => {
+  const loginSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validateForm()) return;
 
@@ -133,7 +139,7 @@ export default function LoginPage({ setLoggedIn, setUser }) { // 👈 add setUse
     setFormData(
       !isLogin
         ? { username: '', email: '', password: '', confirmPassword: '' }
-        : { email: '', password: '' }
+        : { username: '', email: '', password: '', confirmPassword: '' }
     );
   };
 

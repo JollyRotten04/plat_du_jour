@@ -61,7 +61,7 @@ function App() {
             setterCurrentPage={setCurrentPage}
             loggedIn={loggedIn}
             setLoggedIn={setLoggedIn}
-            currentPage={currentPage}
+            // currentPage={currentPage}
             user={user || undefined}
             onLogout={handleLogout}
           />

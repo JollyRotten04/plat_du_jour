@@ -36,19 +36,9 @@ class User extends Authenticatable
         'username',
         'email',
         'password',
+        'user_recipes',
+        'user_articles',
+        'favourite_recipes',
+        'favourite_articles',
     ];
-
-    // Relationships can be added here as needed
-    // Example:
-    /*
-    public function posts()
-    {
-        return $this->hasMany(Post::class);
-    }
-
-    public function profile()
-    {
-        return $this->hasOne(UserProfile::class);
-    }
-    */
 }

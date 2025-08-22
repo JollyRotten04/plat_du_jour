@@ -1,5 +1,4 @@
 // Imports...
-import { useEffect, useState } from 'react';
 import heroImage from '../../assets/heroImage.svg';
 import ChoiceCarousel from '../../components/ChoiceCarousel/ChoiceCarousel';
 import RecipesToInspire from '../../components/MoreContent/MoreContents';

@@ -1,14 +1,11 @@
-import React, {
+import {
   useState,
   useEffect,
-  useRef,
-  useLayoutEffect,
 } from 'react';
 import CarouselImage1 from '../../assets/carouselImage1.svg';
 import CarouselImage2 from '../../assets/carouselImage2.svg';
 import CarouselImage3 from '../../assets/carouselImage3.svg';
 import QuoteIcon from '../../assets/quoteIcon.svg';
-import ChoiceCarousel from '../ChoiceCarousel/ChoiceCarousel';
 
 // Define props for the Carousel component
 type CarouselProps = {
@@ -43,6 +40,7 @@ export default function Carousel({ currentPage}: CarouselProps) {
       setHomeIndex((prev) => (prev + 1) % images.length);
     }, 4000);
     return () => clearInterval(interval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
 
   return (

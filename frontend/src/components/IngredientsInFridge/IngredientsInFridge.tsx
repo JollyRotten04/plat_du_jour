@@ -295,6 +295,7 @@ export default function IngredientsInFridge() {
   const viewContent = (
     contentType: 'recipes' | 'articles',
     slug: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: any
   ) => {
     console.log('Data from Carousel:', data);

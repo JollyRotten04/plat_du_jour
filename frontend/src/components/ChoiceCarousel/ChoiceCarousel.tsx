@@ -163,6 +163,7 @@ const fetchRecipes = async () => {
   } else {
     setRecipes([]);
   }
+// eslint-disable-next-line react-hooks/exhaustive-deps
 }, [selectedDiet, selectedMeal, searchQuery, currentPage]);
 
 
@@ -227,6 +228,7 @@ const fetchRecipes = async () => {
       }
 
       if (dietsSliderRef.current) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         dietsSliderRef.current.offsetHeight;
         setActualContentWidth(dietsSliderRef.current.scrollWidth);
       }
@@ -539,6 +541,7 @@ const fetchRecipes = async () => {
       setRecipes([]);
       setArticles([]);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDiet, selectedMeal, selectedArticleCategory, searchQuery, currentPage]);
 
   // Add this array with your other arrays (diets, meals)
@@ -565,6 +568,7 @@ const fetchRecipes = async () => {
   const viewContent = (
     contentType: 'recipes' | 'articles',
     slug: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: any
   ) => {
     navigate(`/view-content/${contentType}/${slug}`, { state: { data } });

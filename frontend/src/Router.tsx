@@ -10,12 +10,12 @@ import UserArticlesRecipes from './views/UserArticlesRecipes/UserArticlesRecipes
 export default function AppRoutes({
   currentPage,
   setLoggedIn,
-  loggedIn,
   setUser,
 }: {
   currentPage: string;
   setLoggedIn: (val: boolean) => void;
   loggedIn: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setUser: (user: any) => void;
 }) {
   return (
@@ -25,8 +25,8 @@ export default function AppRoutes({
       <Route path="/diets" element={<DietsPage currentPage={currentPage} />} />
       <Route path="/articles" element={<ArticlesPage currentPage={currentPage} />} />
       <Route path="/login" element={<LoginPage setLoggedIn={setLoggedIn} setUser={setUser} />} />
-      <Route path="/view-content/:contentType/:slug" element={<ViewContentPage currentPage={currentPage} />} />
-      <Route path="/user/:contentType" element={<UserArticlesRecipes currentPage={currentPage} />} />
+      <Route path="/view-content/:contentType/:slug" element={<ViewContentPage />} />
+      <Route path="/user/:contentType" element={<UserArticlesRecipes />} />
     </Routes>
   );
 }

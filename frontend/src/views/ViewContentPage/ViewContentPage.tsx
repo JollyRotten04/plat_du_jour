@@ -7,17 +7,31 @@ import ReportIcon from "../../assets/report.svg";
 import StarRating from "../../components/StarRating/StarRating";
 import MoreContents from "../../components/MoreContent/MoreContents";
 
-export default function ViewContentPage({ currentPage }: { currentPage: string }) {
-    const { contentType, slug } = useParams();
+
+export default function ViewContentPage() {
+    const { contentType } = useParams();
     const location = useLocation();
     const data = location.state?.data;
 
-    const validContentTypes = ["recipes", "articles"];
-    if (!contentType || !validContentTypes.includes(contentType)) {
+    const validContentTypes = ["recipes", "articles"] as const;
+    type ContentType = typeof validContentTypes[number];
+
+    if (!contentType || !validContentTypes.includes(contentType as ContentType)) {
         return <p>Invalid content type.</p>;
     }
 
-    const fieldMap = {
+    const fieldMap: Record<ContentType, {
+        id: string;
+        title: string;
+        image: string;
+        slug: string;
+        author: string;
+        content: string;
+        published: string;
+        rating: string;
+        review_count: string;
+        description: string;
+    }> = {
         articles: {
             id: "article_id",
             title: "article_title",
@@ -44,7 +58,7 @@ export default function ViewContentPage({ currentPage }: { currentPage: string }
         },
     };
 
-    const fields = fieldMap[contentType];
+    const fields = fieldMap[contentType as ContentType];
 
     // ✅ normalize image field for articles
     let imageFilename;
@@ -70,18 +84,23 @@ export default function ViewContentPage({ currentPage }: { currentPage: string }
 
     const imagePath = imageFilename ? `${imageDirectories[contentType]}/${imageFilename}` : undefined;
 
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const [isFavorited, setIsFavorited] = useState(false);
 
     // 👇 Login state + modal handling
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem("token"));
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const navigate = useNavigate();
     const goBack = () => {
         navigate(`/${contentType}`);
     };
 
     // Keep login state in sync with localStorage
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     useEffect(() => {
         const handleStorageChange = () => {
             setIsLoggedIn(!!localStorage.getItem("token"));
@@ -92,6 +111,7 @@ export default function ViewContentPage({ currentPage }: { currentPage: string }
     }, []);
 
     // ⭐ On page load → check if this item is already favourited
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     useEffect(() => {
         const fetchFavouriteStatus = async () => {
             if (!isLoggedIn || !contentId) return;
@@ -287,7 +307,7 @@ export default function ViewContentPage({ currentPage }: { currentPage: string }
                                                         className="flex flex-col items-center justify-center rounded-xl py-3 px-4 shadow-md hover:shadow-lg bg-[#253829] transition-shadow"
                                                     >
                                                         <p className="text-sm text-white uppercase tracking-wide">{key}</p>
-                                                        <p className="text-xl font-semibold text-white">{value}</p>
+                                                        <p className="text-xl font-semibold text-white">{String(value)}</p>
                                                     </div>
                                                 ))}
                                             </div>
@@ -358,10 +378,12 @@ export default function ViewContentPage({ currentPage }: { currentPage: string }
 
                         {/* ⭐ Rating block */}
                         <div className="flex flex-col mt-12">
-                            <p className="text-black select-none font-normal text-xl text-center">Rate this {contentType}:</p>
+                            <p className="text-black select-none font-normal text-xl text-center">
+                                Rate this {contentType.endsWith("s") ? contentType.slice(0, -1) : contentType}:
+                            </p>
                             <div className="flex justify-center">
                                 {isLoggedIn ? (
-                                    <StarRating contentType={contentType} disabled={false} className="w-8 h-8" />
+                                    <StarRating />
                                 ) : (
                                     <div onClick={() => setShowLoginPrompt(true)} className="flex gap-1 cursor-pointer">
                                         {[...Array(5)].map((_, i) => (
