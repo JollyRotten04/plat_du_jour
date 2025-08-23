@@ -740,7 +740,7 @@ const fetchArticles = async () => {
                   {recipes.map((recipe) => (
                     <div
                       key={recipe.recipe_id}
-                      className="relative rounded-lg bg-white shadow-lg flex-shrink-0"
+                      className="relative rounded-lg select-none bg-white shadow-lg flex-shrink-0"
                       onClick={() => viewContent('recipes', recipe.recipe_slug, recipe)}
                       style={{
                         width: '320px',
@@ -907,7 +907,8 @@ const fetchArticles = async () => {
               {selectedDiet && (
                 <button
                   onClick={() => setSelectedDiet(null)}
-                  className="mb-4 bg-white text-black font-semibold w-fit px-4 py-2 rounded hover:bg-gray-100 transition-colors"
+                  draggable='false'
+                  className="mb-4 bg-white text-black select-none font-semibold w-fit px-4 py-2 rounded hover:bg-gray-100 transition-colors"
                 >
                   Back to Diets
                 </button>
@@ -919,7 +920,8 @@ const fetchArticles = async () => {
               {/* Recipes Container */}
               <div
                 ref={recipesContainerRef}
-                className="relative w-full overflow-hidden touch-pan-x"
+                draggable='false'
+                className="relative w-full overflow-hidden touch-pan-x select-none"
                 onMouseDown={(e) => handleRecipesDragStart(e.clientX)}
                 onMouseMove={(e) => recipesIsDragging && handleRecipesDragMove(e.clientX)}
                 onMouseUp={handleRecipesDragEnd}
@@ -944,7 +946,7 @@ const fetchArticles = async () => {
                   {recipes.map((recipe) => (
                     <div
                       key={recipe.recipe_id}
-                      className="relative rounded-lg bg-white shadow-lg flex-shrink-0"
+                      className="relative rounded-lg select-none bg-white shadow-lg flex-shrink-0"
                       onClick={() => viewContent('recipes', recipe.recipe_slug, recipe)}
                       style={{
                         width: '320px',
