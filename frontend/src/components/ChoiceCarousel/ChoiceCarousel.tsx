@@ -30,6 +30,8 @@ import LifestyleCategory from '../../assets/articleCategories/lifestyle.svg';
 import FoodSustainabilityCategory from '../../assets/articleCategories/food-sustainability.svg';
 import HealthNutritionCategory from '../../assets/articleCategories/health-and-nutrition.svg';
 
+// <-- ADDED: import your existing LoadingIcon component (adjust path if needed)
+import LoadingIcon from '../../components/LoadingIcon/LoadingIcon';
 
 const diets = [
   CarnivoreDiet,
@@ -106,70 +108,67 @@ export default function ChoiceCarousel({ currentPage }: DataProps) {
     setSelectedMeal(null);
   };
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-// Fetch recipes with priority-based filtering (only one filter at a time)
-const fetchRecipes = async () => {
-  try {
-    setLoading(true);
-    setError(null);
+  // Fetch recipes with priority-based filtering (only one filter at a time)
+  const fetchRecipes = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-    const params = new URLSearchParams();
+      const params = new URLSearchParams();
 
-    if (searchQuery.trim()) {
-      params.append('search', searchQuery.trim());
-    } else if (currentPage === 'Diets' && selectedDiet) {
-      params.append('diet', selectedDiet);
-    } else if (currentPage === 'Recipes' && selectedMeal) {
-      params.append('meal_type', selectedMeal);
+      if (searchQuery.trim()) {
+        params.append('search', searchQuery.trim());
+      } else if (currentPage === 'Diets' && selectedDiet) {
+        params.append('diet', selectedDiet);
+      } else if (currentPage === 'Recipes' && selectedMeal) {
+        params.append('meal_type', selectedMeal);
+      }
+
+      const url = `${API_BASE_URL}/api/recipes/load?${params.toString()}`;
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+      const data: ApiResponse = await response.json();
+      if (data.success) {
+        setRecipes(data.data);
+      } else {
+        throw new Error(data.message || 'Failed to load recipes');
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'An unknown error occurred';
+      setError(message);
+      console.error('Error fetching recipes:', message);
+    } finally {
+      setLoading(false);
     }
-
-    const url = `${API_BASE_URL}/api/recipes/load?${params.toString()}`;
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      credentials: 'include', 
-    });
-
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    
-    const data: ApiResponse = await response.json();
-    if (data.success) {
-      setRecipes(data.data);
-    } else {
-      throw new Error(data.message || 'Failed to load recipes');
-    }
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'An unknown error occurred';
-    setError(message);
-    console.error('Error fetching recipes:', message);
-  } finally {
-    setLoading(false);
-  }
-};
-
-
+  };
 
   // Only fetch recipes when a diet is actually selected or when searching
   useEffect(() => {
-  if (searchQuery.trim()) {
-    fetchRecipes();
-    return;
-  }
+    if (searchQuery.trim()) {
+      fetchRecipes();
+      return;
+    }
 
-  if (currentPage === 'Diets' && selectedDiet) {
-    fetchRecipes();
-  } else if (currentPage === 'Recipes' && selectedMeal) {
-    fetchRecipes();
-  } else {
-    setRecipes([]);
-  }
-// eslint-disable-next-line react-hooks/exhaustive-deps
-}, [selectedDiet, selectedMeal, searchQuery, currentPage]);
-
+    if (currentPage === 'Diets' && selectedDiet) {
+      fetchRecipes();
+    } else if (currentPage === 'Recipes' && selectedMeal) {
+      fetchRecipes();
+    } else {
+      setRecipes([]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDiet, selectedMeal, searchQuery, currentPage]);
 
   // useEffect(() => {
   //   console.log(recipes);
@@ -440,91 +439,48 @@ const fetchRecipes = async () => {
     message?: string;
   };
 
-// Add this to your fetchRecipes function to handle articles
-const fetchArticles = async () => {
+  // Add this to your fetchRecipes function to handle articles
+  const fetchArticles = async () => {
 
-  console.log('Fetching articles');
-  try {
-    setLoading(true);
-    setError(null);
+    console.log('Fetching articles');
+    try {
+      setLoading(true);
+      setError(null);
 
-    const params = new URLSearchParams();
+      const params = new URLSearchParams();
 
-    if (searchQuery.trim()) {
-      params.append('search', searchQuery.trim());
-    } else if (currentPage === 'Articles' && selectedArticleCategory) {
-      params.append('category', selectedArticleCategory);
+      if (searchQuery.trim()) {
+        params.append('search', searchQuery.trim());
+      } else if (currentPage === 'Articles' && selectedArticleCategory) {
+        params.append('category', selectedArticleCategory);
+      }
+
+      const url = `${API_BASE_URL}/api/articles/load?${params.toString()}`;
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        credentials: 'include', // <-- added for CORS with credentials
+      });
+
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+      const data: ArticleApiResponse = await response.json();
+      if (data.success) {
+        setArticles(data.data);
+      } else {
+        throw new Error(data.message || 'Failed to load articles');
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'An unknown error occurred';
+      setError(message);
+      console.error('Error fetching articles:', message);
+    } finally {
+      setLoading(false);
     }
-
-    const url = `${API_BASE_URL}/api/articles/load?${params.toString()}`;
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      credentials: 'include', // <-- added for CORS with credentials
-    });
-
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    
-    const data: ArticleApiResponse = await response.json();
-    if (data.success) {
-      setArticles(data.data);
-    } else {
-      throw new Error(data.message || 'Failed to load articles');
-    }
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'An unknown error occurred';
-    setError(message);
-    console.error('Error fetching articles:', message);
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-  // To add recipe or articles, only works if the user is logged in...
-  // const addContent = async () => {
-
-  //   console.log('Fetching articles');
-  //   try {
-  //     setLoading(true);
-  //     setError(null);
-
-  //     const params = new URLSearchParams();
-
-  //     if (searchQuery.trim()) {
-  //       params.append('search', searchQuery.trim());
-  //     } else if (currentPage === 'Articles' && selectedArticleCategory) {
-  //       params.append('category', selectedArticleCategory);
-  //     }
-
-  //     const url = `http://localhost/api/articles/load?${params.toString()}`;
-  //     const response = await fetch(url, {
-  //       method: 'GET',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         Accept: 'application/json',
-  //       },
-  //     });
-
-  //     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      
-  //     const data: ArticleApiResponse = await response.json();
-  //     if (data.success) {
-  //       setArticles(data.data);
-  //     } else {
-  //       throw new Error(data.message || 'Failed to load articles');
-  //     }
-  //   } catch (err) {
-  //     const message = err instanceof Error ? err.message : 'An unknown error occurred';
-  //     setError(message);
-  //     console.error('Error fetching articles:', message);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  };
 
   // Update your useEffect to handle articles
   useEffect(() => {
@@ -698,7 +654,7 @@ const fetchArticles = async () => {
             </div>
           )}
 
-          {(selectedMeal || searchQuery.trim()) && recipes.length > 0 && (
+          {(selectedMeal || searchQuery.trim()) && (
             <>
               {selectedMeal && (
                 <button
@@ -709,79 +665,92 @@ const fetchArticles = async () => {
                 </button>
               )}
 
-              {loading && <p className="text-white select-none">Loading recipes...</p>}
-              {error && <p className="text-red-400">{error}</p>}
+              {loading && (
+                <div className="my-6">
+                  <LoadingIcon text="Loading recipes..." />
+                </div>
+              )}
 
-              {/* Recipes Container */}
-              <div
-                ref={recipesContainerRef}
-                className="relative w-full overflow-hidden touch-pan-x"
-                onMouseDown={(e) => handleRecipesDragStart(e.clientX)}
-                onMouseMove={(e) => recipesIsDragging && handleRecipesDragMove(e.clientX)}
-                onMouseUp={handleRecipesDragEnd}
-                onMouseLeave={handleRecipesDragEnd}
-                onTouchStart={(e) => handleRecipesDragStart(e.touches[0].clientX)}
-                onTouchMove={(e) =>
-                  recipesIsDragging && handleRecipesDragMove(e.touches[0].clientX)
-                }
-                onTouchEnd={handleRecipesDragEnd}
-                onDragStart={(e) => e.preventDefault()}
-              >
-                <div
-                  ref={recipesSliderRef}
-                  className="flex gap-4"
-                  style={{
-                    transform: `translateX(${clampedRecipesOffset}px)`,
-                    transition: recipesTransitionEnabled ? 'transform 0.3s ease-out' : 'none',
-                    cursor: recipesIsDragging ? 'grabbing' : 'grab',
-                    width: 'fit-content',
-                  }}
-                >
-                  {recipes.map((recipe) => (
+              {!loading && error && <p className="text-red-400">{error}</p>}
+
+              {!loading && recipes.length > 0 && (
+                <>
+                  {/* Recipes Container */}
+                  <div
+                    ref={recipesContainerRef}
+                    className="relative w-full overflow-hidden touch-pan-x"
+                    onMouseDown={(e) => handleRecipesDragStart(e.clientX)}
+                    onMouseMove={(e) => recipesIsDragging && handleRecipesDragMove(e.clientX)}
+                    onMouseUp={handleRecipesDragEnd}
+                    onMouseLeave={handleRecipesDragEnd}
+                    onTouchStart={(e) => handleRecipesDragStart(e.touches[0].clientX)}
+                    onTouchMove={(e) =>
+                      recipesIsDragging && handleRecipesDragMove(e.touches[0].clientX)
+                    }
+                    onTouchEnd={handleRecipesDragEnd}
+                    onDragStart={(e) => e.preventDefault()}
+                  >
                     <div
-                      key={recipe.recipe_id}
-                      className="relative rounded-lg select-none bg-white shadow-lg flex-shrink-0"
-                      onClick={() => viewContent('recipes', recipe.recipe_slug, recipe)}
+                      ref={recipesSliderRef}
+                      className="flex gap-4"
                       style={{
-                        width: '320px',
-                        minHeight: '280px',
-                        cursor: 'pointer',
+                        transform: `translateX(${clampedRecipesOffset}px)`,
+                        transition: recipesTransitionEnabled ? 'transform 0.3s ease-out' : 'none',
+                        cursor: recipesIsDragging ? 'grabbing' : 'grab',
+                        width: 'fit-content',
                       }}
                     >
-                      <img
-                        src={`/recipes/${recipe.image_path}`}
-                        alt={recipe.recipe_name}
-                        className="rounded-t-lg object-cover w-full h-40"
-                        draggable={false}
-                      />
-                      <div className="p-4">
-                        <h3 className="text-lg font-semibold">{recipe.recipe_name}</h3>
-                        <p className="text-sm text-gray-700 line-clamp-3">
-                          {recipe.recipe_description}
-                        </p>
-                      </div>
-                      <div className="absolute bottom-2 left-2 text-sm text-gray-600 bg-white bg-opacity-80 rounded px-2 py-1 flex items-center gap-1">
-                        <svg
-                          className="w-4 h-4 fill-current text-yellow-500"
-                          viewBox="0 0 20 20"
+                      {recipes.map((recipe) => (
+                        <div
+                          key={recipe.recipe_id}
+                          className="relative rounded-lg select-none bg-white shadow-lg flex-shrink-0"
+                          onClick={() => viewContent('recipes', recipe.recipe_slug, recipe)}
+                          style={{
+                            width: '320px',
+                            minHeight: '280px',
+                            cursor: 'pointer',
+                          }}
                         >
-                          <path d="M10 15l-5.878 3.09 1.123-6.545L.49 6.91l6.572-.955L10 0l2.938 5.955 6.572.955-4.755 4.635 1.123 6.545z" />
-                        </svg>
-                        <span>{recipe.recipe_rating}</span>
-                        <span className="ml-2 text-gray-500">({formatReviewCount(recipe.recipe_review_count)})</span>
+                          <img
+                            src={`/recipes/${recipe.image_path}`}
+                            alt={recipe.recipe_name}
+                            className="rounded-t-lg object-cover w-full h-40"
+                            draggable={false}
+                          />
+                          <div className="p-4">
+                            <h3 className="text-lg font-semibold">{recipe.recipe_name}</h3>
+                            <p className="text-sm text-gray-700 line-clamp-3">
+                              {recipe.recipe_description}
+                            </p>
+                          </div>
+                          <div className="absolute bottom-2 left-2 text-sm text-gray-600 bg-white bg-opacity-80 rounded px-2 py-1 flex items-center gap-1">
+                            <svg
+                              className="w-4 h-4 fill-current text-yellow-500"
+                              viewBox="0 0 20 20"
+                            >
+                              <path d="M10 15l-5.878 3.09 1.123-6.545L.49 6.91l6.572-.955L10 0l2.938 5.955 6.572.955-4.755 4.635 1.123 6.545z" />
+                            </svg>
+                            <span>{recipe.recipe_rating}</span>
+                            <span className="ml-2 text-gray-500">({formatReviewCount(recipe.recipe_review_count)})</span>
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* Renders Add New Recipe */}
+                      <div draggable='false' className='select-none cursor-pointer w-[320px] min-h-[280px] p-4 border-4 border-white rounded-xl flex flex-col justify-center items-center'>
+
+                        <img draggable='false' src={PlusIcon} className='h-10 w-12' alt="" />
+
+                        <p className='select-none text-white text-xl font-semibold'>Add New Recipe</p>
                       </div>
                     </div>
-                  ))}
-
-                  {/* Renders Add New Recipe */}
-                  <div draggable='false' className='select-none cursor-pointer w-[320px] min-h-[280px] p-4 border-4 border-white rounded-xl flex flex-col justify-center items-center'>
-
-                    <img draggable='false' src={PlusIcon} className='h-10 w-12' alt="" />
-
-                    <p className='select-none text-white text-xl font-semibold'>Add New Recipe</p>
                   </div>
-                </div>
-              </div>
+                </>
+              )}
+
+              {!loading && recipes.length === 0 && !error && (
+                <p className="text-white mt-6">No recipes found.</p>
+              )}
             </>
           )}
         </>
@@ -902,7 +871,7 @@ const fetchArticles = async () => {
             </div>
           )}
 
-          {(selectedDiet || searchQuery.trim()) && recipes.length > 0 && (
+          {(selectedDiet || searchQuery.trim()) && (
             <>
               {selectedDiet && (
                 <button
@@ -914,80 +883,93 @@ const fetchArticles = async () => {
                 </button>
               )}
 
-              {loading && <p className="text-white">Loading recipes...</p>}
-              {error && <p className="text-red-400">{error}</p>}
+              {loading && (
+                <div className="my-6">
+                  <LoadingIcon text="Loading recipes..." />
+                </div>
+              )}
 
-              {/* Recipes Container */}
-              <div
-                ref={recipesContainerRef}
-                draggable='false'
-                className="relative w-full overflow-hidden touch-pan-x select-none"
-                onMouseDown={(e) => handleRecipesDragStart(e.clientX)}
-                onMouseMove={(e) => recipesIsDragging && handleRecipesDragMove(e.clientX)}
-                onMouseUp={handleRecipesDragEnd}
-                onMouseLeave={handleRecipesDragEnd}
-                onTouchStart={(e) => handleRecipesDragStart(e.touches[0].clientX)}
-                onTouchMove={(e) =>
-                  recipesIsDragging && handleRecipesDragMove(e.touches[0].clientX)
-                }
-                onTouchEnd={handleRecipesDragEnd}
-                onDragStart={(e) => e.preventDefault()}
-              >
-                <div
-                  ref={recipesSliderRef}
-                  className="flex gap-4"
-                  style={{
-                    transform: `translateX(${clampedRecipesOffset}px)`,
-                    transition: recipesTransitionEnabled ? 'transform 0.3s ease-out' : 'none',
-                    cursor: recipesIsDragging ? 'grabbing' : 'grab',
-                    width: 'fit-content',
-                  }}
-                >
-                  {recipes.map((recipe) => (
+              {!loading && error && <p className="text-red-400">{error}</p>}
+
+              {!loading && recipes.length > 0 && (
+                <>
+                  {/* Recipes Container */}
+                  <div
+                    ref={recipesContainerRef}
+                    draggable='false'
+                    className="relative w-full overflow-hidden touch-pan-x select-none"
+                    onMouseDown={(e) => handleRecipesDragStart(e.clientX)}
+                    onMouseMove={(e) => recipesIsDragging && handleRecipesDragMove(e.clientX)}
+                    onMouseUp={handleRecipesDragEnd}
+                    onMouseLeave={handleRecipesDragEnd}
+                    onTouchStart={(e) => handleRecipesDragStart(e.touches[0].clientX)}
+                    onTouchMove={(e) =>
+                      recipesIsDragging && handleRecipesDragMove(e.touches[0].clientX)
+                    }
+                    onTouchEnd={handleRecipesDragEnd}
+                    onDragStart={(e) => e.preventDefault()}
+                  >
                     <div
-                      key={recipe.recipe_id}
-                      className="relative rounded-lg select-none bg-white shadow-lg flex-shrink-0"
-                      onClick={() => viewContent('recipes', recipe.recipe_slug, recipe)}
+                      ref={recipesSliderRef}
+                      className="flex gap-4"
                       style={{
-                        width: '320px',
-                        minHeight: '280px',
-                        cursor: 'pointer',
+                        transform: `translateX(${clampedRecipesOffset}px)`,
+                        transition: recipesTransitionEnabled ? 'transform 0.3s ease-out' : 'none',
+                        cursor: recipesIsDragging ? 'grabbing' : 'grab',
+                        width: 'fit-content',
                       }}
                     >
-                      <img
-                        src={`/recipes/${recipe.image_path}`}
-                        alt={recipe.recipe_name}
-                        className="rounded-t-lg object-cover w-full h-40"
-                        draggable={false}
-                      />
-                      <div className="p-4">
-                        <h3 className="text-lg font-semibold">{recipe.recipe_name}</h3>
-                        <p className="text-sm text-gray-700 line-clamp-3">
-                          {recipe.recipe_description}
-                        </p>
-                      </div>
-                      <div className="absolute bottom-2 left-2 text-sm text-gray-600 bg-white bg-opacity-80 rounded px-2 py-1 flex items-center gap-1">
-                        <svg
-                          className="w-4 h-4 fill-current text-yellow-500"
-                          viewBox="0 0 20 20"
+                      {recipes.map((recipe) => (
+                        <div
+                          key={recipe.recipe_id}
+                          className="relative rounded-lg select-none bg-white shadow-lg flex-shrink-0"
+                          onClick={() => viewContent('recipes', recipe.recipe_slug, recipe)}
+                          style={{
+                            width: '320px',
+                            minHeight: '280px',
+                            cursor: 'pointer',
+                          }}
                         >
-                          <path d="M10 15l-5.878 3.09 1.123-6.545L.49 6.91l6.572-.955L10 0l2.938 5.955 6.572.955-4.755 4.635 1.123 6.545z" />
-                        </svg>
-                        <span>{recipe.recipe_rating}</span>
-                        <span className="ml-2 text-gray-500">({formatReviewCount(recipe.recipe_review_count)})</span>
+                          <img
+                            src={`/recipes/${recipe.image_path}`}
+                            alt={recipe.recipe_name}
+                            className="rounded-t-lg object-cover w-full h-40"
+                            draggable={false}
+                          />
+                          <div className="p-4">
+                            <h3 className="text-lg font-semibold">{recipe.recipe_name}</h3>
+                            <p className="text-sm text-gray-700 line-clamp-3">
+                              {recipe.recipe_description}
+                            </p>
+                          </div>
+                          <div className="absolute bottom-2 left-2 text-sm text-gray-600 bg-white bg-opacity-80 rounded px-2 py-1 flex items-center gap-1">
+                            <svg
+                              className="w-4 h-4 fill-current text-yellow-500"
+                              viewBox="0 0 20 20"
+                            >
+                              <path d="M10 15l-5.878 3.09 1.123-6.545L.49 6.91l6.572-.955L10 0l2.938 5.955 6.572.955-4.755 4.635 1.123 6.545z" />
+                            </svg>
+                            <span>{recipe.recipe_rating}</span>
+                            <span className="ml-2 text-gray-500">({formatReviewCount(recipe.recipe_review_count)})</span>
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* Renders Add New Recipe */}
+                      <div draggable='false' className='select-none cursor-pointer w-[320px] min-h-[280px] p-4 border-4 border-white rounded-xl flex flex-col justify-center items-center'>
+
+                        <img draggable='false' src={PlusIcon} className='h-10 w-12' alt="" />
+
+                        <p className='select-none text-white text-xl font-semibold'>Add New Recipe</p>
                       </div>
                     </div>
-                  ))}
-
-                  {/* Renders Add New Recipe */}
-                  <div draggable='false' className='select-none cursor-pointer w-[320px] min-h-[280px] p-4 border-4 border-white rounded-xl flex flex-col justify-center items-center'>
-
-                    <img draggable='false' src={PlusIcon} className='h-10 w-12' alt="" />
-
-                    <p className='select-none text-white text-xl font-semibold'>Add New Recipe</p>
                   </div>
-                </div>
-              </div>
+                </>
+              )}
+
+              {!loading && recipes.length === 0 && !error && (
+                <p className="text-white mt-6">No recipes found.</p>
+              )}
             </>
           )}
         </>
@@ -1116,7 +1098,7 @@ const fetchArticles = async () => {
             </div>
           )}
 
-          {(selectedArticleCategory || searchQuery.trim()) && articles.length > 0 && (
+          {(selectedArticleCategory || searchQuery.trim()) && (
             <div>
               {selectedArticleCategory && (
                 <button
@@ -1127,85 +1109,98 @@ const fetchArticles = async () => {
                 </button>
               )}
 
-              {loading && <p className="text-white select-none">Loading articles...</p>}
-              {error && <p className="text-red-400">{error}</p>}
+              {loading && (
+                <div className="my-6">
+                  <LoadingIcon text="Loading articles..." />
+                </div>
+              )}
 
-              {/* Articles Container */}
-              <div
-                ref={recipesContainerRef}
-                className="relative w-full overflow-hidden touch-pan-x"
-                onMouseDown={(e) => handleRecipesDragStart(e.clientX)}
-                onMouseMove={(e) => recipesIsDragging && handleRecipesDragMove(e.clientX)}
-                onMouseUp={handleRecipesDragEnd}
-                onMouseLeave={handleRecipesDragEnd}
-                onTouchStart={(e) => handleRecipesDragStart(e.touches[0].clientX)}
-                onTouchMove={(e) =>
-                  recipesIsDragging && handleRecipesDragMove(e.touches[0].clientX)
-                }
-                onTouchEnd={handleRecipesDragEnd}
-                onDragStart={(e) => e.preventDefault()}
-              >
-                <div
-                  ref={recipesSliderRef}
-                  className="flex gap-4"
-                  draggable={false}
-                  style={{
-                    transform: `translateX(${clampedRecipesOffset}px)`,
-                    transition: recipesTransitionEnabled ? 'transform 0.3s ease-out' : 'none',
-                    cursor: recipesIsDragging ? 'grabbing' : 'grab',
-                    width: 'fit-content',
-                  }}
-                >
-                  {articles.map((article) => (
+              {!loading && error && <p className="text-red-400">{error}</p>}
+
+              {!loading && articles.length > 0 && (
+                <>
+                  {/* Articles Container */}
+                  <div
+                    ref={recipesContainerRef}
+                    className="relative w-full overflow-hidden touch-pan-x"
+                    onMouseDown={(e) => handleRecipesDragStart(e.clientX)}
+                    onMouseMove={(e) => recipesIsDragging && handleRecipesDragMove(e.clientX)}
+                    onMouseUp={handleRecipesDragEnd}
+                    onMouseLeave={handleRecipesDragEnd}
+                    onTouchStart={(e) => handleRecipesDragStart(e.touches[0].clientX)}
+                    onTouchMove={(e) =>
+                      recipesIsDragging && handleRecipesDragMove(e.touches[0].clientX)
+                    }
+                    onTouchEnd={handleRecipesDragEnd}
+                    onDragStart={(e) => e.preventDefault()}
+                  >
                     <div
-                      onClick={() => viewContent('articles', article.article_slug, article)}
-                      key={article.article_id}
-                      className="relative rounded-lg bg-white shadow-lg flex-shrink-0"
+                      ref={recipesSliderRef}
+                      className="flex gap-4"
                       draggable={false}
                       style={{
-                        width: '320px',
-                        minHeight: '280px',
-                        cursor: 'pointer',
+                        transform: `translateX(${clampedRecipesOffset}px)`,
+                        transition: recipesTransitionEnabled ? 'transform 0.3s ease-out' : 'none',
+                        cursor: recipesIsDragging ? 'grabbing' : 'grab',
+                        width: 'fit-content',
                       }}
                     >
-                      <img
-                        src={`/articleImages/${article.image_path}`}
-                        alt={article.article_title}
-                        className="rounded-t-lg object-cover w-full h-40 select-none"
-                        draggable={false}
-                      />
-                      <div className="p-4">
-                        <h3 className="text-lg font-semibold select-none">{article.article_title}</h3>
-                        <p className="text-sm select-none text-gray-700 line-clamp-3">
-                          {article.article_excerpt}
-                        </p>
-                        <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
-                          <span className='select-none'>{article.article_author}</span>
-                          <span className='select-none'>{article.article_read_time}</span>
-                        </div>
-                      </div>
-                      <div className="absolute bottom-2 left-2 text-sm text-gray-600 bg-white bg-opacity-80 rounded px-2 py-1 flex items-center gap-1">
-                        <svg
-                          className="w-4 h-4 select-none fill-current text-blue-500"
-                          viewBox="0 0 20 20"
+                      {articles.map((article) => (
+                        <div
+                          onClick={() => viewContent('articles', article.article_slug, article)}
+                          key={article.article_id}
+                          className="relative rounded-lg bg-white shadow-lg flex-shrink-0"
+                          draggable={false}
+                          style={{
+                            width: '320px',
+                            minHeight: '280px',
+                            cursor: 'pointer',
+                          }}
                         >
-                          <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
-                          <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd"/>
-                        </svg>
-                        <span className='select-none'>{article.article_views.toLocaleString()} views</span>
+                          <img
+                            src={`/articleImages/${article.image_path}`}
+                            alt={article.article_title}
+                            className="rounded-t-lg object-cover w-full h-40 select-none"
+                            draggable={false}
+                          />
+                          <div className="p-4">
+                            <h3 className="text-lg font-semibold select-none">{article.article_title}</h3>
+                            <p className="text-sm select-none text-gray-700 line-clamp-3">
+                              {article.article_excerpt}
+                            </p>
+                            <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
+                              <span className='select-none'>{article.article_author}</span>
+                              <span className='select-none'>{article.article_read_time}</span>
+                            </div>
+                          </div>
+                          <div className="absolute bottom-2 left-2 text-sm text-gray-600 bg-white bg-opacity-80 rounded px-2 py-1 flex items-center gap-1">
+                            <svg
+                              className="w-4 h-4 select-none fill-current text-blue-500"
+                              viewBox="0 0 20 20"
+                            >
+                              <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                              <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd"/>
+                            </svg>
+                            <span className='select-none'>{article.article_views.toLocaleString()} views</span>
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* Renders Add New Article */}
+                      <div draggable='false' className='select-none cursor-pointer w-[320px] min-h-[280px] p-4 border-4 border-white rounded-xl flex flex-col justify-center items-center'>
+
+                        <img draggable='false' src={PlusIcon} className='h-10 w-12' alt="" />
+
+                        <p className='select-none text-white text-xl font-semibold'>Add New Recipe</p>
                       </div>
                     </div>
-                  ))}
-
-                  {/* Renders Add New Article */}
-                  <div draggable='false' className='select-none cursor-pointer w-[320px] min-h-[280px] p-4 border-4 border-white rounded-xl flex flex-col justify-center items-center'>
-
-                    <img draggable='false' src={PlusIcon} className='h-10 w-12' alt="" />
-
-                    <p className='select-none text-white text-xl font-semibold'>Add New Article</p>
                   </div>
-                </div>
-              </div>
+                </>
+              )}
+
+              {!loading && articles.length === 0 && !error && (
+                <p className="text-white mt-6">No articles found.</p>
+              )}
             </div>
           )}
         </>
