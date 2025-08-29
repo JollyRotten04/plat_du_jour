@@ -1,5 +1,3 @@
-import React from "react";
-
 const LoadingIcon = ({ size = "w-10 h-10", color = "text-blue-600" }) => {
   return (
     <div className="flex flex-col items-center justify-center">

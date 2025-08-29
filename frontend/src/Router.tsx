@@ -25,7 +25,7 @@ export default function AppRoutes({
       <Route path="/diets" element={<DietsPage currentPage={currentPage} />} />
       <Route path="/articles" element={<ArticlesPage currentPage={currentPage} />} />
       <Route path="/login" element={<LoginPage setLoggedIn={setLoggedIn} setUser={setUser} />} />
-      <Route path="/view-content/:contentType/:slug" element={<ViewContentPage />} />
+      <Route path="/view-content/:contentType/:slug" element={<ViewContentPage currentPage={currentPage}/>} />
       <Route path="/user/:contentType" element={<UserArticlesRecipes />} />
     </Routes>
   );

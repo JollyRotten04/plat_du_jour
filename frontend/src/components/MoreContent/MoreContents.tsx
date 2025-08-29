@@ -300,6 +300,7 @@ export default function MoreContents({ currentPage }: { currentPage: string }) {
                       }}
                     >
                       <img
+                        // eslint-disable-next-line no-constant-binary-expression
                         src={`/articleImages/${article.image_path}` || "/placeholder.png"}
                         alt={article.article_title}
                         className="rounded-t-lg select-none object-cover w-full h-40"
@@ -338,6 +339,7 @@ export default function MoreContents({ currentPage }: { currentPage: string }) {
                       }}
                     >
                       <img
+                        // eslint-disable-next-line no-constant-binary-expression
                         src={`/recipes/${recipe.image_path}` || "/placeholder.png"}
                         alt={recipe.recipe_name}
                         className="rounded-t-lg select-none object-cover w-full h-40"

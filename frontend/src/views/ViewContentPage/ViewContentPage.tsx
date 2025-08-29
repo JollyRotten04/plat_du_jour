@@ -112,7 +112,6 @@ export default function ViewContentPage({ currentPage }: { currentPage: string }
     }, []);
 
     // ⭐ On page load → check if this item is already favourited
-    // eslint-disable-next-line react-hooks/rules-of-hooks
    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
