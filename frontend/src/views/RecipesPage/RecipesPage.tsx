@@ -1,7 +1,7 @@
 // Imports...
 import heroImage from '../../assets/heroImage.svg';
 import ChoiceCarousel from '../../components/ChoiceCarousel/ChoiceCarousel';
-import RecipesToInspire from '../../components/MoreContent/MoreContents';
+import MoreContents from '../../components/MoreContent/MoreContents';
 import IngredientsInFridge from '../../components/IngredientsInFridge/IngredientsInFridge';
 
 // Types
@@ -103,7 +103,7 @@ export default function RecipesPage({ currentPage }: { currentPage: string }) {
                         </div>
 
                         {/* Recipes to Inspire Component */}
-                        <RecipesToInspire />
+                        <MoreContents currentPage={currentPage}/>
 
                         {/* What's In The Fridge Component */}
                         <IngredientsInFridge />

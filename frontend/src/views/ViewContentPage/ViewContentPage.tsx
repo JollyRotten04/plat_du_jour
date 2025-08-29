@@ -8,10 +8,11 @@ import StarRating from "../../components/StarRating/StarRating";
 import MoreContents from "../../components/MoreContent/MoreContents";
 
 
-export default function ViewContentPage() {
+export default function ViewContentPage({ currentPage }: { currentPage: string }) {
     const { contentType } = useParams();
     const location = useLocation();
     const data = location.state?.data;
+    currentPage = location.state?.currentPage || currentPage; // ✅ fallback to prop if not in state
 
     const validContentTypes = ["recipes", "articles"] as const;
     type ContentType = typeof validContentTypes[number];
@@ -407,7 +408,7 @@ const handleFavouriteClick = async () => {
                         </div>
 
                         <div>
-                            <MoreContents />
+                            <MoreContents currentPage={currentPage}/>
                         </div>
                     </div>
                 </div>

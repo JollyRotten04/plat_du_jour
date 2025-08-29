@@ -25,10 +25,12 @@ export default function Header({
   useEffect(() => {
     const path = location.pathname;
     let page = 'Home';
-    if (path.includes('recipes')) page = 'Recipes';
+
+    if (path.includes('recipes') || path.startsWith('/view-content/recipes')) page = 'Recipes';
     else if (path.includes('diets')) page = 'Diets';
-    else if (path.includes('articles')) page = 'Articles';
+    else if (path.includes('articles') || path.startsWith('/view-content/articles')) page = 'Articles';
     else if (path.includes('login')) page = 'Login';
+
     setterCurrentPage(page);
   }, [location.pathname, setterCurrentPage]);
 
@@ -42,16 +44,18 @@ export default function Header({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => {
+    // For view-content routes, highlight the correct nav item
+    if (path === '/recipes') return location.pathname === '/recipes' || location.pathname.startsWith('/view-content/recipes');
+    if (path === '/articles') return location.pathname === '/articles' || location.pathname.startsWith('/view-content/articles');
+    return location.pathname === path;
+  };
 
   const baseClass = "default-text font-normal text-lg cursor-pointer select-none relative";
   const activeClass = "selected-text px-2 rounded-sm underline font-normal";
 
-  // Dropdown option styling
   const optionBase = "p-2 rounded-md transition-all duration-200 delay-200";
-  const optionActive = "bg-[#2a372d] text-white transition-all duration-200 delay-200"; // ✅ updated highlight style
-
-  // const navigate = useNavigate();
+  const optionActive = "bg-[#2a372d] text-white transition-all duration-200 delay-200";
 
   const profileOptions = [
     { label: "My Articles", path: "/user/my-articles" },
@@ -82,38 +86,22 @@ export default function Header({
             }`}
           >
             <nav className="flex flex-col gap-2">
-              <Link to="/" onClick={() => setNavOpen(false)} className={`${baseClass} ${isActive("/") ? activeClass : ""}`}>
-                Home
-              </Link>
-              <Link to="/recipes" onClick={() => setNavOpen(false)} className={`${baseClass} ${isActive("/recipes") ? activeClass : ""}`}>
-                Recipes
-              </Link>
-              <Link to="/diets" onClick={() => setNavOpen(false)} className={`${baseClass} ${isActive("/diets") ? activeClass : ""}`}>
-                Diets
-              </Link>
-              <Link to="/articles" onClick={() => setNavOpen(false)} className={`${baseClass} ${isActive("/articles") ? activeClass : ""}`}>
-                Articles
-              </Link>
+              <Link to="/" onClick={() => setNavOpen(false)} className={`${baseClass} ${isActive("/") ? activeClass : ""}`}>Home</Link>
+              <Link to="/recipes" onClick={() => setNavOpen(false)} className={`${baseClass} ${isActive("/recipes") ? activeClass : ""}`}>Recipes</Link>
+              <Link to="/diets" onClick={() => setNavOpen(false)} className={`${baseClass} ${isActive("/diets") ? activeClass : ""}`}>Diets</Link>
+              <Link to="/articles" onClick={() => setNavOpen(false)} className={`${baseClass} ${isActive("/articles") ? activeClass : ""}`}>Articles</Link>
 
               {!loggedIn ? (
-                <Link to="/login" onClick={() => setNavOpen(false)} className={`${baseClass} ${isActive("/login") ? activeClass : ""}`}>
-                  Login
-                </Link>
+                <Link to="/login" onClick={() => setNavOpen(false)} className={`${baseClass} ${isActive("/login") ? activeClass : ""}`}>Login</Link>
               ) : (
                 <div className="relative" ref={profileRef}>
-                  <button
-                    onClick={() => setProfileOpen(!profileOpen)}
-                    className={`${baseClass}`}
-                  >
+                  <button onClick={() => setProfileOpen(!profileOpen)} className={`${baseClass}`}>
                     {user?.username || "Profile"}
                   </button>
 
-                  {/* Profile dropdown */}
                   <div
                     className={`absolute left-0 mt-2 w-56 bg-white shadow-lg rounded-xl transform transition-all duration-300 ease-in-out z-70 ${
-                      profileOpen
-                        ? "opacity-100 translate-y-0"
-                        : "opacity-0 -translate-y-2 pointer-events-none"
+                      profileOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"
                     }`}
                   >
                     <ul className="flex flex-col p-2 gap-2">
@@ -121,13 +109,8 @@ export default function Header({
                         <Link
                           key={opt.path}
                           to={opt.path}
-                          onClick={() => {
-                            // setProfileOpen(false);
-                            setSelectedProfileOption(opt.path);
-                          }}
-                          className={`${optionBase} ${
-                            location.pathname === opt.path ? optionActive : ""
-                          }`}
+                          onClick={() => setSelectedProfileOption(opt.path)}
+                          className={`${optionBase} ${location.pathname === opt.path ? optionActive : ""}`}
                         >
                           {opt.label}
                         </Link>
@@ -161,19 +144,13 @@ export default function Header({
               <Link to="/login" className={`${baseClass} ${isActive("/login") ? activeClass : ""}`}>Login</Link>
             ) : (
               <div className="relative" ref={profileRef}>
-                <button
-                  onClick={() => setProfileOpen(!profileOpen)}
-                  className={`${baseClass}`}
-                >
+                <button onClick={() => setProfileOpen(!profileOpen)} className={`${baseClass}`}>
                   {user?.username || "Profile"}
                 </button>
 
-                {/* Profile dropdown */}
                 <div
                   className={`absolute right-0 mt-2 w-56 bg-white shadow-lg rounded-xl transform transition-all duration-300 ease-in-out ${
-                    profileOpen
-                      ? "opacity-100 translate-y-0"
-                      : "opacity-0 -translate-y-2 pointer-events-none"
+                    profileOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"
                   }`}
                 >
                   <ul className="flex flex-col p-2 gap-2">
@@ -181,13 +158,8 @@ export default function Header({
                       <Link
                         key={opt.path}
                         to={opt.path}
-                        onClick={() => {
-                          // setProfileOpen(false);
-                          setSelectedProfileOption(opt.path);
-                        }}
-                        className={`${optionBase} ${
-                          location.pathname === opt.path ? optionActive : ""
-                        }`}
+                        onClick={() => setSelectedProfileOption(opt.path)}
+                        className={`${optionBase} ${location.pathname === opt.path ? optionActive : ""}`}
                       >
                         {opt.label}
                       </Link>

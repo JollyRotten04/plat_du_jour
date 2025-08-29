@@ -291,12 +291,12 @@ export default function IngredientsInFridge() {
   return (
     <div
       draggable="false"
-      className="ingredients-in-fridge select-none bg-cover portrait:h-164 sm:portrait:h-[36rem] md:portrait:h-[48rem] 
+      className="ingredients-in-fridge select-none bg-cover landscape:h-[42rem] md:landscape:h-[52rem] lg:landscape:h-[64rem] xl:landscape:h-[68rem] portrait:h-164 sm:portrait:h-[36rem] md:portrait:h-[48rem] 
                 p-6 sm:p-12 sm:px-24 md:landscape:p-6 flex md:landscape:justify-end bg-center bg-no-repeat"
       style={{ backgroundImage: `url(${IngredientsInFridgeBg})` }}
     >
       <div
-        className="flex flex-col p-4 sm:p-8 gap-4 bg-white h-full w-full md:landscape:w-1/2 xl:landscape:w-2/5 rounded-2xl overflow-y-auto overflow-x-hidden select-none"
+        className="flex flex-col p-4 scrollbar-hidden sm:p-8 gap-4 bg-white h-full min:h-full max:h-full w-full md:landscape:w-1/2 xl:landscape:w-2/5 rounded-2xl overflow-y-auto overflow-x-hidden select-none"
         draggable="false"
       >
         {/* 🔥 Global Loading Icon */}
@@ -399,7 +399,7 @@ export default function IngredientsInFridge() {
                         <div
                           key={recipe.recipe_id}
                           onClick={() => viewContent('recipes', recipe.recipe_slug, recipe)}
-                          className="border rounded-lg p-4 shadow hover:shadow-lg transition-shadow flex flex-col gap-4"
+                          className="border rounded-lg p-4 select-none curso-pointer shadow hover:shadow-lg transition-shadow flex flex-col gap-4"
                         >
                           <div className="flex items-center gap-4">
                             {recipe.image_path && (

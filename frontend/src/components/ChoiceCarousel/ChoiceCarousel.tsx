@@ -93,6 +93,8 @@ export default function ChoiceCarousel({ currentPage }: DataProps) {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
 
+  // console.log('Current Page in ChoiceCarousel:', currentPage);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault(); // Prevent form submission/page reload
     fetchRecipes(); // Trigger search
@@ -531,9 +533,14 @@ export default function ChoiceCarousel({ currentPage }: DataProps) {
     contentType: 'recipes' | 'articles',
     slug: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    data: any
+    data: any,
+    currentPage: string // <-- add prop
   ) => {
-    navigate(`/view-content/${contentType}/${slug}`, { state: { data } });
+    navigate(`/view-content/${contentType}/${slug}`, {
+      state: { data, currentPage }, // <-- pass as state
+    });
+
+    window.scrollTo({ top: 0, behavior: "smooth" }); // <-- force scroll to top
   };
 
   return (
@@ -591,7 +598,7 @@ export default function ChoiceCarousel({ currentPage }: DataProps) {
             /* Diets carousel */
             <div
               ref={dietsContainerRef}
-              className="relative w-full overflow-hidden touch-pan-x"
+              className="relative w-full overflow-hidden overflow-x-auto scrollbar-hidden touch-pan-x"
               onMouseDown={(e) => handleDietDragStart(e.clientX)}
               onMouseMove={(e) => isDragging && handleDietDragMove(e.clientX)}
               onMouseUp={handleDietDragEnd}
@@ -603,7 +610,7 @@ export default function ChoiceCarousel({ currentPage }: DataProps) {
             >
               <div
                 ref={dietsSliderRef}
-                className="flex"
+                className="flex items-center"
                 style={{
                   gap: `${gapPx}px`,
                   transform: `translateX(${clampedOffset}px)`,
@@ -667,7 +674,7 @@ export default function ChoiceCarousel({ currentPage }: DataProps) {
 
               {loading && (
                 <div className="my-6">
-                  <LoadingIcon text="Loading recipes..." />
+                  <LoadingIcon />
                 </div>
               )}
 
@@ -678,7 +685,7 @@ export default function ChoiceCarousel({ currentPage }: DataProps) {
                   {/* Recipes Container */}
                   <div
                     ref={recipesContainerRef}
-                    className="relative w-full overflow-hidden touch-pan-x"
+                    className="relative w-full overflow-hidden overflow-x-auto scrollbar-hidden touch-pan-x"
                     onMouseDown={(e) => handleRecipesDragStart(e.clientX)}
                     onMouseMove={(e) => recipesIsDragging && handleRecipesDragMove(e.clientX)}
                     onMouseUp={handleRecipesDragEnd}
@@ -703,8 +710,8 @@ export default function ChoiceCarousel({ currentPage }: DataProps) {
                       {recipes.map((recipe) => (
                         <div
                           key={recipe.recipe_id}
-                          className="relative rounded-lg select-none bg-white shadow-lg flex-shrink-0"
-                          onClick={() => viewContent('recipes', recipe.recipe_slug, recipe)}
+                          className="relative rounded-lg select-none items-center bg-white shadow-lg flex-shrink-0"
+                          onClick={() => viewContent('recipes', recipe.recipe_slug, recipe, currentPage)}
                           style={{
                             width: '320px',
                             minHeight: '280px',
@@ -808,7 +815,7 @@ export default function ChoiceCarousel({ currentPage }: DataProps) {
             /* Diets carousel */
             <div
               ref={dietsContainerRef}
-              className="relative w-full overflow-hidden touch-pan-x"
+              className="relative w-full overflow-hidden overflow-x-auto scrollbar-hidden touch-pan-x"
               onMouseDown={(e) => handleDietDragStart(e.clientX)}
               onMouseMove={(e) => isDragging && handleDietDragMove(e.clientX)}
               onMouseUp={handleDietDragEnd}
@@ -820,7 +827,7 @@ export default function ChoiceCarousel({ currentPage }: DataProps) {
             >
               <div
                 ref={dietsSliderRef}
-                className="flex"
+                className="flex items-center"
                 style={{
                   gap: `${gapPx}px`,
                   transform: `translateX(${clampedOffset}px)`,
@@ -885,7 +892,7 @@ export default function ChoiceCarousel({ currentPage }: DataProps) {
 
               {loading && (
                 <div className="my-6">
-                  <LoadingIcon text="Loading recipes..." />
+                  <LoadingIcon />
                 </div>
               )}
 
@@ -897,7 +904,7 @@ export default function ChoiceCarousel({ currentPage }: DataProps) {
                   <div
                     ref={recipesContainerRef}
                     draggable='false'
-                    className="relative w-full overflow-hidden touch-pan-x select-none"
+                    className="relative w-full overflow-hidden overflow-x-auto scrollbar-hidden touch-pan-x select-none"
                     onMouseDown={(e) => handleRecipesDragStart(e.clientX)}
                     onMouseMove={(e) => recipesIsDragging && handleRecipesDragMove(e.clientX)}
                     onMouseUp={handleRecipesDragEnd}
@@ -911,7 +918,7 @@ export default function ChoiceCarousel({ currentPage }: DataProps) {
                   >
                     <div
                       ref={recipesSliderRef}
-                      className="flex gap-4"
+                      className="flex gap-4 items-center"
                       style={{
                         transform: `translateX(${clampedRecipesOffset}px)`,
                         transition: recipesTransitionEnabled ? 'transform 0.3s ease-out' : 'none',
@@ -922,8 +929,8 @@ export default function ChoiceCarousel({ currentPage }: DataProps) {
                       {recipes.map((recipe) => (
                         <div
                           key={recipe.recipe_id}
-                          className="relative rounded-lg select-none bg-white shadow-lg flex-shrink-0"
-                          onClick={() => viewContent('recipes', recipe.recipe_slug, recipe)}
+                          className="relative rounded-lg select-none items-center bg-white shadow-lg flex-shrink-0"
+                          onClick={() => viewContent('recipes', recipe.recipe_slug, recipe, currentPage)}
                           style={{
                             width: '320px',
                             minHeight: '280px',
@@ -1028,7 +1035,7 @@ export default function ChoiceCarousel({ currentPage }: DataProps) {
             /* Article Categories carousel */
             <div
               ref={dietsContainerRef}
-              className="relative w-full overflow-hidden touch-pan-x"
+              className="relative w-full overflow-hidden overflow-x-auto items-center scrollbar-hidden touch-pan-x"
               onMouseDown={(e) => handleDietDragStart(e.clientX)}
               onMouseMove={(e) => isDragging && handleDietDragMove(e.clientX)}
               onMouseUp={handleDietDragEnd}
@@ -1040,7 +1047,7 @@ export default function ChoiceCarousel({ currentPage }: DataProps) {
             >
               <div
                 ref={dietsSliderRef}
-                className="flex"
+                className="flex items-center"
                 style={{
                   gap: `${gapPx}px`,
                   transform: `translateX(${clampedOffset}px)`,
@@ -1111,7 +1118,7 @@ export default function ChoiceCarousel({ currentPage }: DataProps) {
 
               {loading && (
                 <div className="my-6">
-                  <LoadingIcon text="Loading articles..." />
+                  <LoadingIcon />
                 </div>
               )}
 
@@ -1122,7 +1129,7 @@ export default function ChoiceCarousel({ currentPage }: DataProps) {
                   {/* Articles Container */}
                   <div
                     ref={recipesContainerRef}
-                    className="relative w-full overflow-hidden touch-pan-x"
+                    className="relative w-full overflow-hidden overflow-x-auto items-center scrollbar-hidden touch-pan-x"
                     onMouseDown={(e) => handleRecipesDragStart(e.clientX)}
                     onMouseMove={(e) => recipesIsDragging && handleRecipesDragMove(e.clientX)}
                     onMouseUp={handleRecipesDragEnd}
@@ -1136,7 +1143,7 @@ export default function ChoiceCarousel({ currentPage }: DataProps) {
                   >
                     <div
                       ref={recipesSliderRef}
-                      className="flex gap-4"
+                      className="flex gap-4 items-center"
                       draggable={false}
                       style={{
                         transform: `translateX(${clampedRecipesOffset}px)`,
@@ -1147,9 +1154,9 @@ export default function ChoiceCarousel({ currentPage }: DataProps) {
                     >
                       {articles.map((article) => (
                         <div
-                          onClick={() => viewContent('articles', article.article_slug, article)}
+                          onClick={() => viewContent('articles', article.article_slug, article, currentPage)}
                           key={article.article_id}
-                          className="relative rounded-lg bg-white shadow-lg flex-shrink-0"
+                          className="relative rounded-lg bg-white shadow-lg flex-shrink-0 items-center"
                           draggable={false}
                           style={{
                             width: '320px',

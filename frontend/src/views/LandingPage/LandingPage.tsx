@@ -1,7 +1,7 @@
 // Components...
 import heroImage from '../../assets/heroImage.svg';
 import Carousel from '../../components/Carousel/Carousel';
-import RecipesToInspire from '../../components/MoreContent/MoreContents';
+import MoreContents from '../../components/MoreContent/MoreContents';
 import IngredientsInFridge from '../../components/IngredientsInFridge/IngredientsInFridge';
 
 export default function LandingPage({ currentPage }: { currentPage: string }) {
@@ -24,7 +24,7 @@ export default function LandingPage({ currentPage }: { currentPage: string }) {
                         </div>
 
                         {/* Recipes to Inspire Component */}
-                        <RecipesToInspire />
+                        <MoreContents currentPage={currentPage} />
 
                         {/* What's In The Fridge Component */}
                         <IngredientsInFridge />
