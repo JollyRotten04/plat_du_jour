@@ -109,24 +109,111 @@ export default function CreateContent() {
     }
   };
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+//   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+//   const handleSubmit = async () => {
+//   try {
 
-  const handleSubmit = async () => {
+//     if (imageFile && imageFile.size > 2 * 1024 * 1024) { // 2MB limit
+//       alert(`Image file is too large (${(imageFile.size / 1024 / 1024).toFixed(1)}MB). Please choose a file smaller than 2MB.`);
+//       return;
+//     }
+    
+//     console.log("Submitting form data:", {
+//       contentType,
+//       title,
+//       description,
+//       ingredients,
+//       steps,
+//       nutrition,
+//       cookTime,
+//       recipeCategory,
+//       recipeType,
+//       token,
+//     });
+
+//     const formData = new FormData();
+//     formData.append("contentType", contentType);
+//     formData.append("title", title);
+//     formData.append("description", description);
+
+//     if (user) {
+//       formData.append("user_id", user.user_id.toString());
+//       formData.append("username", user.username);
+//       formData.append("email", user.email);
+//     }
+
+//     if (imageFile) {
+//       formData.append("image", imageFile);
+//     }
+
+//     if (contentType === "recipes") {
+//       formData.append("ingredients", JSON.stringify(ingredients));
+//       formData.append("steps", JSON.stringify(steps));
+//       formData.append("nutrition", JSON.stringify(nutrition));
+//       formData.append("cook_time", cookTime);
+//       formData.append("recipe_category", recipeCategory);
+//       formData.append("recipe_type", recipeType);
+//     } else {
+//       formData.append("content", content);
+//     }
+
+//     // Log FormData contents
+//     console.log("FormData contents:");
+//     for (let [key, value] of formData.entries()) {
+//       console.log(key, value);
+//     }
+
+//     const url = `${API_BASE_URL}/api/content/${contentType}`;
+//     console.log("Making request to:", url);
+
+//     const res = await fetch(url, {
+//       method: "POST",
+//       body: formData,
+//       headers: {
+//         Authorization: `Bearer ${token || ""}`,
+//       },
+//       credentials: 'include',
+//     });
+
+//     console.log("Response received:");
+//     console.log("Status:", res.status);
+//     console.log("Status Text:", res.statusText);
+//     console.log("Headers:", Object.fromEntries(res.headers.entries()));
+
+//     // Get response text first to see raw response
+//     const responseText = await res.text();
+//     console.log("Raw response:", responseText);
+
+//     if (!res.ok) {
+//       throw new Error(`HTTP ${res.status}: ${responseText}`);
+//     }
+
+//     // Try to parse as JSON
+//     let data;
+//     try {
+//       data = JSON.parse(responseText);
+//     } catch (parseError) {
+//       console.error("Failed to parse JSON:", parseError);
+//       throw new Error("Invalid JSON response from server");
+//     }
+
+//     console.log("✅ Content submitted successfully:", data);
+//     alert("Content published!");
+
+//     setTimeout(() => {
+//       navigate('/');
+//     }, 1000);
+
+//   } catch (err) {
+//     console.error("❌ Full error object:", err);
+//     console.error("Error message:", err.message);
+//     console.error("Error stack:", err.stack);
+//     alert(`Failed to publish content: ${err.message}`);
+//   }
+// };
+
+const handleSubmit = async () => {
     try {
-
-      console.log("Submitting form data:", {
-  contentType,
-  title,
-  description,
-  ingredients,
-  steps,
-  nutrition,
-  cookTime,
-  recipeCategory,
-  recipeType,
-  token,
-});
-
       const formData = new FormData();
       formData.append("contentType", contentType);
       formData.append("title", title);
@@ -153,7 +240,12 @@ export default function CreateContent() {
         formData.append("content", content);
       }
 
-      const res = await fetch(`${API_BASE_URL}/api/content/${contentType}`, {
+      // console.log("🔎 Values being sent:");
+      // for (const [key, value] of formData.entries()) {
+      //   console.log(`${key}:`, value);
+      // }
+
+      const res = await fetch(`http://localhost/api/content/${contentType}`, {
         method: "POST",
         body: formData,
         headers: {
@@ -167,7 +259,7 @@ export default function CreateContent() {
       console.log("✅ Content submitted successfully:", data);
       alert("Content published!");
 
-      setTimeout(() => {
+        setTimeout(() => {
         navigate('/');
       }, 1000);
     } catch (err) {
@@ -175,6 +267,71 @@ export default function CreateContent() {
       alert("Failed to publish content.");
     }
   };
+
+//   const handleSubmit = async () => {
+//     try {
+
+//       console.log("Submitting form data:", {
+//   contentType,
+//   title,
+//   description,
+//   ingredients,
+//   steps,
+//   nutrition,
+//   cookTime,
+//   recipeCategory,
+//   recipeType,
+//   token,
+// });
+
+//       const formData = new FormData();
+//       formData.append("contentType", contentType);
+//       formData.append("title", title);
+//       formData.append("description", description);
+
+//       if (user) {
+//         formData.append("user_id", user.user_id.toString());
+//         formData.append("username", user.username);
+//         formData.append("email", user.email);
+//       }
+
+//       if (imageFile) {
+//         formData.append("image", imageFile);
+//       }
+
+//       if (contentType === "recipes") {
+//         formData.append("ingredients", JSON.stringify(ingredients));
+//         formData.append("steps", JSON.stringify(steps));
+//         formData.append("nutrition", JSON.stringify(nutrition));
+//         formData.append("cook_time", cookTime);
+//         formData.append("recipe_category", recipeCategory);
+//         formData.append("recipe_type", recipeType);
+//       } else {
+//         formData.append("content", content);
+//       }
+
+//       const res = await fetch(`${API_BASE_URL}/api/content/${contentType}`, {
+//         method: "POST",
+//         body: formData,
+//         headers: {
+//           Authorization: `Bearer ${token || ""}`,
+//         },
+//       });
+
+//       if (!res.ok) throw new Error("Failed to submit content");
+
+//       const data = await res.json();
+//       console.log("✅ Content submitted successfully:", data);
+//       alert("Content published!");
+
+//       setTimeout(() => {
+//         navigate('/');
+//       }, 1000);
+//     } catch (err) {
+//       console.error("❌ Error submitting content:", err);
+//       alert("Failed to publish content.");
+//     }
+//   };
 
   const goBack = () => {
     navigate(`/${contentType}`);

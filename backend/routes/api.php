@@ -7,6 +7,7 @@ use App\Http\Controllers\UserAuth;
 use App\Http\Controllers\ViewContentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Log; // Add this line
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -56,4 +57,30 @@ Route::post('/login', [UserAuth::class, 'login']);
 Route::post('/signup', [UserAuth::class, 'signup']);
 
 // For Making New Articles...
-Route::post('/content/{contentType}', [CreateContentController::class, 'store']);
+// Route::post('/content/{contentType}', [CreateContentController::class, 'store']);
+// In routes/api.php, wrap your route:
+Route::post('/content/{contentType}', function(Request $request, $contentType) {
+    try {
+        Log::info('Route reached with contentType: ' . $contentType);
+        Log::info('Request size: ' . strlen(serialize($request->all())));
+        
+        return app(CreateContentController::class)->store($request);
+    } catch (\Exception $e) {
+        Log::error('Route level error: ' . $e->getMessage());
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});
+
+Route::get('/content/{contentType}', function(Request $request, $contentType) {
+    Log::info('GET route reached with contentType: ' . $contentType);
+    return response()->json([
+        'message' => 'GET route works',
+        'contentType' => $contentType,
+        'method' => $request->method()
+    ]);
+});
+
+Route::get('/test-log', function () {
+    \Log::info('✅ Test route reached!');
+    return response()->json(['message' => 'Test route works!']);
+});
