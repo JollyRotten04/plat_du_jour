@@ -157,11 +157,7 @@ export default function CreateContent() {
       formData.append("content", content);
     }
 
-    // Log FormData contents
-    console.log("FormData contents:");
-    for (let [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
+   
 
     const url = `https://plat-du-jour.onrender.com/api/content/${contentType}`;
     console.log("Making request to:", url);
@@ -205,10 +201,7 @@ export default function CreateContent() {
     }, 1000);
 
   } catch (err) {
-    console.error("❌ Full error object:", err);
-    console.error("Error message:", err.message);
-    console.error("Error stack:", err.stack);
-    alert(`Failed to publish content: ${err.message}`);
+    console.error("❌ Error submitting content:", err);
   }
 };
 
