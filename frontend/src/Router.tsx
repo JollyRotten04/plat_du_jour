@@ -5,6 +5,7 @@ import DietsPage from './views/DietsPage/DietsPage';
 import ArticlesPage from './views/ArticlesPage/ArticlesPage';
 import LoginPage from './views/LoginPage/LoginPage';
 import ViewContentPage from './views/ViewContentPage/ViewContentPage';
+import CreateContent from './views/CreateContent/CreateContent';
 import UserArticlesRecipes from './views/UserArticlesRecipes/UserArticlesRecipes';
 
 export default function AppRoutes({
@@ -26,6 +27,7 @@ export default function AppRoutes({
       <Route path="/articles" element={<ArticlesPage currentPage={currentPage} />} />
       <Route path="/login" element={<LoginPage setLoggedIn={setLoggedIn} setUser={setUser} />} />
       <Route path="/view-content/:contentType/:slug" element={<ViewContentPage currentPage={currentPage}/>} />
+      <Route path="/create-content/:contentType" element={<CreateContent />} />
       <Route path="/user/:contentType" element={<UserArticlesRecipes />} />
     </Routes>
   );

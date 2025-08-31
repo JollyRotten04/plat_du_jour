@@ -10,6 +10,8 @@ class Recipes extends Model
 {
     use HasFactory;
 
+    public $timestamps = false; 
+
     protected $table = 'recipes';
 
     protected $primaryKey = 'recipe_id';
@@ -33,6 +35,7 @@ class Recipes extends Model
     ];
 
     protected $casts = [
+        'recipe_ingredients' => 'array',    // Add this
         'recipe_rating' => 'decimal:1',
         'recipe_calories' => 'integer',
         'recipe_review_count' => 'integer',
@@ -127,18 +130,19 @@ class Recipes extends Model
     }
 
     // Check if recipe has image
-    public function hasImage()
-    {
-        return !empty($this->image_path) && file_exists(public_path($this->image_path));
-    }
+public function hasImage()
+{
+    return !empty($this->image_path) && file_exists(public_path('storage/recipes/' . $this->image_path));
+}
 
-    // Get image URL or default
-    public function getImageUrlAttribute()
-    {
-        if ($this->hasImage()) {
-            return asset($this->image_path);
-        }
-        
-        return asset('images/default-recipe.jpg'); // Make sure you have a default image
+// Get image URL or default
+public function getImageUrlAttribute()
+{
+    if ($this->hasImage()) {
+        return asset('storage/recipes/' . $this->image_path);
     }
+    
+    return asset('images/default-recipe.jpg'); // Make sure you have a default image
+}
+
 }

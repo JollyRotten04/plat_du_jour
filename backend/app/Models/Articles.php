@@ -13,6 +13,8 @@ class Articles extends Model
     protected $table = 'articles';
     protected $primaryKey = 'article_id';
 
+    public $timestamps = false; 
+
     protected $fillable = [
         'article_title',
         'article_summary',

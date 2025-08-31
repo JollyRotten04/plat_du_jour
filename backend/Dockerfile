@@ -28,6 +28,9 @@ COPY . ./
 # Copy vendor from builder stage
 COPY --from=vendor /app/vendor ./vendor
 
+# Create storage symlink for public access
+RUN php artisan storage:link
+
 # Set Laravel permissions
 RUN chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache

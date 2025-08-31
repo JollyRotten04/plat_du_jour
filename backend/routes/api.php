@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\ArticlesController;
+use App\Http\Controllers\CreateContentController;
 use App\Http\Controllers\UserAuth;
 use App\Http\Controllers\ViewContentController;
 use Illuminate\Http\Request;
@@ -53,3 +54,6 @@ Route::post('/login', [UserAuth::class, 'login']);
 
 // Route to Signup
 Route::post('/signup', [UserAuth::class, 'signup']);
+
+// For Making New Articles...
+Route::post('/content/{contentType}', [CreateContentController::class, 'store']);

@@ -301,11 +301,12 @@ export default function MoreContents({ currentPage }: { currentPage: string }) {
                     >
                       <img
                         // eslint-disable-next-line no-constant-binary-expression
-                        src={`/articleImages/${article.image_path}` || "/placeholder.png"}
+                        src={`https://plat-du-jour.onrender.com/storage/articleImages/${article.image_path}` || "/placeholder.png"}
                         alt={article.article_title}
                         className="rounded-t-lg select-none object-cover w-full h-40"
                         draggable={false}
                       />
+
                       <div className="relative w-full p-4">
                         <h3
                           className={`text-lg font-semibold select-none truncate ${
@@ -339,12 +340,12 @@ export default function MoreContents({ currentPage }: { currentPage: string }) {
                       }}
                     >
                       <img
-                        // eslint-disable-next-line no-constant-binary-expression
-                        src={`/recipes/${recipe.image_path}` || "/placeholder.png"}
-                        alt={recipe.recipe_name}
-                        className="rounded-t-lg select-none object-cover w-full h-40"
-                        draggable={false}
-                      />
+                      // eslint-disable-next-line no-constant-binary-expression
+                      src={`https://plat-du-jour.onrender.com/storage/recipes/${recipe.image_path}` || "/placeholder.png"}
+                      alt={recipe.recipe_name}
+                      className="rounded-t-lg select-none object-cover w-full h-40"
+                      draggable={false}
+                    />
                       <div className="p-4">
                         <h3 className="text-lg font-semibold select-none">{recipe.recipe_name}</h3>
                         <p className="text-sm text-gray-700 line-clamp-3 select-none">
