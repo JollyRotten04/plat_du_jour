@@ -543,6 +543,18 @@ export default function ChoiceCarousel({ currentPage }: DataProps) {
     window.scrollTo({ top: 0, behavior: "smooth" }); // <-- force scroll to top
   };
 
+  // Logic to switch to Create Contents Page...
+  const createContent = (
+    contentType: 'recipes' | 'articles',
+    currentPage: string // <-- add prop
+  ) => {
+    navigate(`/create-content/${contentType}`, {
+      state: { currentPage }, // <-- pass as state
+    });
+
+    window.scrollTo({ top: 0, behavior: "smooth" }); // <-- force scroll to top
+  };
+
   return (
     <>
 
@@ -714,12 +726,14 @@ export default function ChoiceCarousel({ currentPage }: DataProps) {
                           onClick={() => viewContent('recipes', recipe.recipe_slug, recipe, currentPage)}
                           style={{
                             width: '320px',
+                            height: '300px',
                             minHeight: '280px',
                             cursor: 'pointer',
                           }}
                         >
                           <img
-                            src={`/recipes/${recipe.image_path}`}
+                            // eslint-disable-next-line no-constant-binary-expression
+                            src={`https://plat-du-jour.onrender.com/storage/recipes/${recipe.image_path}` || "/placeholder.png"}
                             alt={recipe.recipe_name}
                             className="rounded-t-lg object-cover w-full h-40"
                             draggable={false}
@@ -744,7 +758,7 @@ export default function ChoiceCarousel({ currentPage }: DataProps) {
                       ))}
 
                       {/* Renders Add New Recipe */}
-                      <div draggable='false' className='select-none cursor-pointer w-[320px] min-h-[280px] p-4 border-4 border-white rounded-xl flex flex-col justify-center items-center'>
+                      <div onClick={() => createContent('recipes', currentPage)} draggable='false' className='select-none cursor-pointer w-[320px] min-h-[280px] p-4 border-4 border-white rounded-xl flex flex-col justify-center items-center'>
 
                         <img draggable='false' src={PlusIcon} className='h-10 w-12' alt="" />
 
@@ -933,12 +947,14 @@ export default function ChoiceCarousel({ currentPage }: DataProps) {
                           onClick={() => viewContent('recipes', recipe.recipe_slug, recipe, currentPage)}
                           style={{
                             width: '320px',
+                            height: '300px',
                             minHeight: '280px',
                             cursor: 'pointer',
                           }}
                         >
                           <img
-                            src={`/recipes/${recipe.image_path}`}
+                            // eslint-disable-next-line no-constant-binary-expression
+                            src={`https://plat-du-jour.onrender.com/storage/recipes/${recipe.image_path}` || "/placeholder.png"}
                             alt={recipe.recipe_name}
                             className="rounded-t-lg object-cover w-full h-40"
                             draggable={false}
@@ -963,7 +979,7 @@ export default function ChoiceCarousel({ currentPage }: DataProps) {
                       ))}
 
                       {/* Renders Add New Recipe */}
-                      <div draggable='false' className='select-none cursor-pointer w-[320px] min-h-[280px] p-4 border-4 border-white rounded-xl flex flex-col justify-center items-center'>
+                      <div onClick={() => createContent('recipes', currentPage)} draggable='false' className='select-none cursor-pointer w-[320px] min-h-[280px] p-4 border-4 border-white rounded-xl flex flex-col justify-center items-center'>
 
                         <img draggable='false' src={PlusIcon} className='h-10 w-12' alt="" />
 
@@ -1095,7 +1111,7 @@ export default function ChoiceCarousel({ currentPage }: DataProps) {
                 })}
 
                 {/* Renders Add New Recipe */}
-                <div draggable='false' className='select-none cursor-pointer w-[320px] min-h-[280px] p-4 border-4 border-white rounded-xl flex flex-col justify-center items-center'>
+                <div onClick={() => createContent('recipes', currentPage)} draggable='false' className='select-none cursor-pointer w-[320px] min-h-[280px] p-4 border-4 border-white rounded-xl flex flex-col justify-center items-center'>
 
                   <img draggable='false' src={PlusIcon} className='h-10 w-12' alt="" />
 
@@ -1160,18 +1176,22 @@ export default function ChoiceCarousel({ currentPage }: DataProps) {
                           draggable={false}
                           style={{
                             width: '320px',
+                            height: '300px',
                             minHeight: '280px',
                             cursor: 'pointer',
                           }}
                         >
                           <img
-                            src={`/articleImages/${article.image_path}`}
+                            // eslint-disable-next-line no-constant-binary-expression
+                            src={`https://plat-du-jour.onrender.com/storage/articleImages/${article.image_path}` || "/placeholder.png"}
                             alt={article.article_title}
                             className="rounded-t-lg object-cover w-full h-40 select-none"
                             draggable={false}
                           />
                           <div className="p-4">
-                            <h3 className="text-lg font-semibold select-none">{article.article_title}</h3>
+                            <h3 className="text-lg font-semibold select-none truncate overflow-hidden whitespace-nowrap">
+                              {article.article_title}
+                            </h3>
                             <p className="text-sm select-none text-gray-700 line-clamp-3">
                               {article.article_excerpt}
                             </p>
@@ -1194,7 +1214,7 @@ export default function ChoiceCarousel({ currentPage }: DataProps) {
                       ))}
 
                       {/* Renders Add New Article */}
-                      <div draggable='false' className='select-none cursor-pointer w-[320px] min-h-[280px] p-4 border-4 border-white rounded-xl flex flex-col justify-center items-center'>
+                      <div onClick={() => createContent('articles', currentPage)} draggable='false' className='select-none cursor-pointer w-[320px] min-h-[280px] p-4 border-4 border-white rounded-xl flex flex-col justify-center items-center'>
 
                         <img draggable='false' src={PlusIcon} className='h-10 w-12' alt="" />
 

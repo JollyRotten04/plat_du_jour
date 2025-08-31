@@ -13,28 +13,30 @@ class CreateContentController extends Controller
 {
     public function store(Request $request)
     {
+        // Log incoming request except the image
         Log::info('Incoming CreateContent request inputs:', $request->except('image'));
 
+        // Log image if present
         if ($request->hasFile('image')) {
             Log::info('Incoming file:', ['image_name' => $request->file('image')->getClientOriginalName()]);
         }
 
         // Validate inputs
         $validated = $request->validate([
-            'contentType'    => ['required', Rule::in(['recipes', 'articles'])],
-            'title'          => ['required', 'string', 'max:255'],
-            'description'    => ['nullable', 'string'],
-            'user_id'        => ['nullable', 'integer'],
-            'username'       => ['nullable', 'string', 'max:255'],
-            'email'          => ['nullable', 'email', 'max:255'],
-            'content'        => ['nullable', 'string'],
-            'ingredients'    => ['nullable', 'string'], // JSON string
-            'steps'          => ['nullable', 'string'], // JSON string
-            'nutrition'      => ['nullable', 'string'], // JSON string
-            'image'          => ['nullable', 'file', 'image', 'max:5120'],
-            'cook_time'      => ['nullable', 'string', 'max:50'],
-            'recipe_category'=> ['nullable', 'string', 'max:255'],
-            'recipe_type'    => ['nullable', 'string', 'max:255'],
+            'contentType'     => ['required', Rule::in(['recipes', 'articles'])],
+            'title'           => ['required', 'string', 'max:255'],
+            'description'     => ['nullable', 'string'],
+            'user_id'         => ['nullable', 'integer'],
+            'username'        => ['nullable', 'string', 'max:255'],
+            'email'           => ['nullable', 'email', 'max:255'],
+            'content'         => ['nullable', 'string'],
+            'ingredients'     => ['nullable', 'string'], // JSON string
+            'steps'           => ['nullable', 'string'], // JSON string
+            'nutrition'       => ['nullable', 'string'], // JSON string
+            'image'           => ['nullable', 'file', 'image', 'max:5120'],
+            'cook_time'       => ['nullable', 'string', 'max:50'],
+            'recipe_category' => ['nullable', 'string', 'max:255'],
+            'recipe_type'     => ['nullable', 'string', 'max:255'],
         ]);
 
         $contentType = $validated['contentType'];
@@ -44,13 +46,18 @@ class CreateContentController extends Controller
         $steps       = $request->filled('steps') ? json_decode($request->input('steps'), true) : [];
         $nutrition   = $request->filled('nutrition') ? json_decode($request->input('nutrition'), true) : [];
 
-        // Handle image upload
+        // Handle image upload to specific folders
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('recipes', 'public');
+            if ($contentType === 'recipes') {
+                $imagePath = $request->file('image')->store('recipes', 'public');
+            } else { // articles
+                $imagePath = $request->file('image')->store('articlesImage', 'public');
+            }
         }
 
         if ($contentType === 'recipes') {
+            // Create a recipe
             $recipe = Recipes::create([
                 'recipe_name'        => $request->input('title'),
                 'recipe_description' => $request->input('description'),
@@ -78,7 +85,8 @@ class CreateContentController extends Controller
                 ],
             ], 201);
 
-        } else { // Articles
+        } else {
+            // Create an article
             $article = Articles::create([
                 'article_title'      => $request->input('title'),
                 'article_summary'    => $request->input('description'),

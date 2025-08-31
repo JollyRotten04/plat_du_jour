@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useUser } from "../../UserContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import ImageIcon from "@mui/icons-material/Image";
 
 // ✅ Nutrition type
@@ -31,12 +31,14 @@ interface Nutrition {
 
 export default function CreateContent() {
   const navigate = useNavigate();
+  const location = useLocation(); // for dynamic contentType
+  const { user } = useUser();
+
   const [cookTime, setCookTime] = useState("");
   const [recipeCategory, setRecipeCategory] = useState("");
   const [recipeType, setRecipeType] = useState("");
-  const [contentType] = useState("recipes");
+  const [contentType, setContentType] = useState<"recipes" | "articles">("recipes"); // default
   const [title, setTitle] = useState("");
-  const { user } = useUser();
   const [description, setDescription] = useState("");
   const [content, setContent] = useState("");
   const [ingredients, setIngredients] = useState<string[]>([""]);
@@ -47,6 +49,15 @@ export default function CreateContent() {
     const storedToken = localStorage.getItem("token");
     if (storedToken) setToken(storedToken);
   }, []);
+
+  // Dynamically set contentType based on URL
+  useEffect(() => {
+    const pathParts = location.pathname.split("/");
+    const lastSegment = pathParts[pathParts.length - 1];
+    if (lastSegment === "recipes" || lastSegment === "articles") {
+      setContentType(lastSegment);
+    }
+  }, [location.pathname]);
 
   const [nutrition, setNutrition] = useState<Nutrition>({
     calories: "",
@@ -98,8 +109,24 @@ export default function CreateContent() {
     }
   };
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const handleSubmit = async () => {
     try {
+
+      console.log("Submitting form data:", {
+  contentType,
+  title,
+  description,
+  ingredients,
+  steps,
+  nutrition,
+  cookTime,
+  recipeCategory,
+  recipeType,
+  token,
+});
+
       const formData = new FormData();
       formData.append("contentType", contentType);
       formData.append("title", title);
@@ -126,12 +153,7 @@ export default function CreateContent() {
         formData.append("content", content);
       }
 
-      // console.log("🔎 Values being sent:");
-      // for (const [key, value] of formData.entries()) {
-      //   console.log(`${key}:`, value);
-      // }
-
-      const res = await fetch(`http://localhost/api/content/${contentType}`, {
+      const res = await fetch(`${API_BASE_URL}/api/content/${contentType}`, {
         method: "POST",
         body: formData,
         headers: {
@@ -145,7 +167,7 @@ export default function CreateContent() {
       console.log("✅ Content submitted successfully:", data);
       alert("Content published!");
 
-        setTimeout(() => {
+      setTimeout(() => {
         navigate('/');
       }, 1000);
     } catch (err) {
@@ -154,12 +176,16 @@ export default function CreateContent() {
     }
   };
 
+  const goBack = () => {
+    navigate(`/${contentType}`);
+  };
+
   const RequiredStar = () => <span className="text-red-500">*</span>;
 
   return (
     <div className="min-h-screen w-full flex justify-center">
       <div className="h-full portrait:w-full portrait:p-6 landscape:w-1/2 flex flex-col gap-4">
-        <button className="h-fit w-fit py-2 px-4 mt-4 text-xl select-none cursor-pointer text-white main-background rounded-lg font-semibold shadow-lg tracking-wider">
+        <button onClick={goBack} className="h-fit w-fit py-2 px-4 mt-4 text-xl select-none cursor-pointer text-white main-background rounded-lg font-semibold shadow-lg tracking-wider">
           BACK
         </button>
 
@@ -191,7 +217,7 @@ export default function CreateContent() {
             placeholder="Enter title..."
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="text-white text-2xl font-bold bg-transparent border-b focus:outline-none"
+            className="text-white text-2xl font-bold bg-transparent border-b focus:outline-none truncate"
           />
 
           <div draggable={false} className="flex select-none justify-between items-center">

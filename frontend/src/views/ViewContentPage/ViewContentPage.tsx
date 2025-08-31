@@ -248,7 +248,8 @@ const handleFavouriteClick = async () => {
                     </button>
 
                     {imagePath ? (
-                        <img src={imagePath} alt={`${contentType} cover`} draggable="false" className="w-full select-none object-cover" />
+                        <img // eslint-disable-next-line no-constant-binary-expression
+                        src={`https://plat-du-jour.onrender.com/storage/${imagePath}` || "/placeholder.png"} alt={`${contentType} cover`} draggable="false" className="w-full select-none object-cover" />
                     ) : (
                         <p>No image available</p>
                     )}
