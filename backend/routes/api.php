@@ -7,7 +7,7 @@ use App\Http\Controllers\UserAuth;
 use App\Http\Controllers\ViewContentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Log; // Add this line
+use Illuminate\Support\Facades\Log;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -81,6 +81,6 @@ Route::get('/content/{contentType}', function(Request $request, $contentType) {
 });
 
 Route::get('/test-log', function () {
-    \Log::info('✅ Test route reached!');
+    Log::info('✅ Test route reached!');
     return response()->json(['message' => 'Test route works!']);
 });
