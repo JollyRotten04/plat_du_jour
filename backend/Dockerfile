@@ -28,8 +28,11 @@ COPY . ./
 # Copy vendor from builder stage
 COPY --from=vendor /app/vendor ./vendor
 
-# Create storage symlink for public access
+# After copying app code
 RUN php artisan storage:link
+
+# Optional: copy recipes into storage if not already there
+COPY storage/app/public/recipes /var/www/html/storage/app/public/recipes
 
 # Set Laravel permissions
 RUN chown -R www-data:www-data storage bootstrap/cache \
