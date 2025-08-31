@@ -29,15 +29,28 @@ interface Nutrition {
   zinc?: string | null;
 }
 
+// Updated Recipe Categories (now 'type') and Types (now 'category')
+const RECIPE_TYPES = [
+  'Meat-Based', 'Keto', 'Seafood', 'Kosher', 'Mediterranean', 'Paleo', 'Vegetarian'
+];
+const RECIPE_CATEGORIES = [
+  'Breakfast', 'Snack', 'Lunch', 'Dessert', 'Dinner'
+];
+
+const ARTICLE_CATEGORIES = [
+  'Cooking', 'Health and Nutrition', 'Lifestyle', 'Food Science', 'Food Sustainability'
+];
+
 export default function CreateContent() {
   const navigate = useNavigate();
-  const location = useLocation(); // for dynamic contentType
+  const location = useLocation();
   const { user } = useUser();
 
   const [cookTime, setCookTime] = useState("");
   const [recipeCategory, setRecipeCategory] = useState("");
   const [recipeType, setRecipeType] = useState("");
-  const [contentType, setContentType] = useState<"recipes" | "articles">("recipes"); // default
+  const [articleCategory, setArticleCategory] = useState("");
+  const [contentType, setContentType] = useState<"recipes" | "articles">("recipes");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [content, setContent] = useState("");
@@ -50,7 +63,6 @@ export default function CreateContent() {
     if (storedToken) setToken(storedToken);
   }, []);
 
-  // Dynamically set contentType based on URL
   useEffect(() => {
     const pathParts = location.pathname.split("/");
     const lastSegment = pathParts[pathParts.length - 1];
@@ -64,7 +76,6 @@ export default function CreateContent() {
     protein: "",
     fat: "",
     carbohydrates: "",
-
     fiber: null,
     sugar: null,
     saturatedFat: null,
@@ -72,7 +83,6 @@ export default function CreateContent() {
     cholesterol: null,
     sodium: null,
     potassium: null,
-
     vitaminA: null,
     vitaminC: null,
     vitaminD: null,
@@ -109,222 +119,111 @@ export default function CreateContent() {
     }
   };
 
-//   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const handleSubmit = async () => {
-  try {
-
-    if (imageFile && imageFile.size > 2 * 1024 * 1024) { // 2MB limit
-      alert(`Image file is too large (${(imageFile.size / 1024 / 1024).toFixed(1)}MB). Please choose a file smaller than 2MB.`);
-      return;
-    }
-    
-    console.log("Submitting form data:", {
-      contentType,
-      title,
-      description,
-      ingredients,
-      steps,
-      nutrition,
-      cookTime,
-      recipeCategory,
-      recipeType,
-      token,
-    });
-
-    const formData = new FormData();
-    formData.append("contentType", contentType);
-    formData.append("title", title);
-    formData.append("description", description);
-
-    if (user) {
-      formData.append("user_id", user.user_id.toString());
-      formData.append("username", user.username);
-      formData.append("email", user.email);
-    }
-
-    if (imageFile) {
-      formData.append("image", imageFile);
-    }
-
-    if (contentType === "recipes") {
-      formData.append("ingredients", JSON.stringify(ingredients));
-      formData.append("steps", JSON.stringify(steps));
-      formData.append("nutrition", JSON.stringify(nutrition));
-      formData.append("cook_time", cookTime);
-      formData.append("recipe_category", recipeCategory);
-      formData.append("recipe_type", recipeType);
-    } else {
-      formData.append("content", content);
-    }
-
-   
-
-    const url = `https://plat-du-jour.onrender.com/api/content/${contentType}`;
-    console.log("Making request to:", url);
-
-    const res = await fetch(url, {
-      method: "POST",
-      body: formData,
-      headers: {
-        Authorization: `Bearer ${token || ""}`,
-      },
-      credentials: 'include',
-    });
-
-    console.log("Response received:");
-    console.log("Status:", res.status);
-    console.log("Status Text:", res.statusText);
-    console.log("Headers:", Object.fromEntries(res.headers.entries()));
-
-    // Get response text first to see raw response
-    const responseText = await res.text();
-    console.log("Raw response:", responseText);
-
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status}: ${responseText}`);
-    }
-
-    // Try to parse as JSON
-    let data;
     try {
-      data = JSON.parse(responseText);
-    } catch (parseError) {
-      console.error("Failed to parse JSON:", parseError);
-      throw new Error("Invalid JSON response from server");
+      if (imageFile && imageFile.size > 2 * 1024 * 1024) {
+        alert(`Image file is too large (${(imageFile.size / 1024 / 1024).toFixed(1)}MB). Please choose a file smaller than 2MB.`);
+        return;
+      }
+      
+      console.log("Submitting form data:", {
+        contentType,
+        title,
+        description,
+        ingredients,
+        steps,
+        nutrition,
+        cookTime,
+        recipeCategory,
+        recipeType,
+        token,
+      });
+
+      const formData = new FormData();
+      formData.append("contentType", contentType);
+      formData.append("title", title);
+      formData.append("description", description);
+
+      if (user) {
+        formData.append("user_id", user.user_id.toString());
+        formData.append("username", user.username);
+        formData.append("email", user.email);
+      }
+
+      if (imageFile) {
+        formData.append("image", imageFile);
+      }
+
+      if (contentType === "recipes") {
+        formData.append("ingredients", JSON.stringify(ingredients));
+        formData.append("steps", JSON.stringify(steps));
+        formData.append("nutrition", JSON.stringify(nutrition));
+        formData.append("cook_time", cookTime);
+        formData.append("recipe_category", recipeCategory);
+        formData.append("recipe_type", recipeType);
+      } else {
+        formData.append("content", content);
+        formData.append("article_category", articleCategory);
+      }
+
+      const url = `https://plat-du-jour.onrender.com/api/content/${contentType}`;
+      console.log("Making request to:", url);
+
+      const res = await fetch(url, {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: `Bearer ${token || ""}`,
+        },
+        credentials: 'include',
+      });
+
+      const responseText = await res.text();
+
+      if (!res.ok) {
+        let userMessage = "An unknown error occurred. Please try again.";
+        try {
+          const errorData = JSON.parse(responseText);
+          if (errorData && errorData.details) {
+            // Check for the specific "Duplicate entry" error
+            if (errorData.details.includes("Duplicate entry")) {
+              userMessage = "This title already exists. Please choose a different title.";
+            } else {
+              userMessage = errorData.details;
+            }
+          }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (parseError) {
+          // Fallback if the response is not valid JSON
+          userMessage = "An unexpected error occurred. Please try again.";
+        }
+
+        // Show the user-friendly message
+        alert(userMessage);
+        return;
+      }
+
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error("Failed to parse JSON:", parseError);
+        throw new Error("Invalid JSON response from server");
+      }
+
+      console.log("✅ Content submitted successfully:", data);
+      alert("Content published!");
+
+      setTimeout(() => {
+        navigate('/');
+      }, 1000);
+
+    } catch (err) {
+      console.error("❌ Error submitting content:", err);
+      // Fallback for network errors
+      alert("An unexpected error occurred. Please check your network connection.");
     }
-
-    console.log("✅ Content submitted successfully:", data);
-    alert("Content published!");
-
-    setTimeout(() => {
-      navigate('/');
-    }, 1000);
-
-  } catch (err) {
-    console.error("❌ Error submitting content:", err);
-  }
-};
-
-// const handleSubmit = async () => {
-//     try {
-//       const formData = new FormData();
-//       formData.append("contentType", contentType);
-//       formData.append("title", title);
-//       formData.append("description", description);
-
-//       if (user) {
-//         formData.append("user_id", user.user_id.toString());
-//         formData.append("username", user.username);
-//         formData.append("email", user.email);
-//       }
-
-//       if (imageFile) {
-//         formData.append("image", imageFile);
-//       }
-
-//       if (contentType === "recipes") {
-//         formData.append("ingredients", JSON.stringify(ingredients));
-//         formData.append("steps", JSON.stringify(steps));
-//         formData.append("nutrition", JSON.stringify(nutrition));
-//         formData.append("cook_time", cookTime);
-//         formData.append("recipe_category", recipeCategory);
-//         formData.append("recipe_type", recipeType);
-//       } else {
-//         formData.append("content", content);
-//       }
-
-//       // console.log("🔎 Values being sent:");
-//       // for (const [key, value] of formData.entries()) {
-//       //   console.log(`${key}:`, value);
-//       // }
-
-//       const res = await fetch(`http://localhost/api/content/${contentType}`, {
-//         method: "POST",
-//         body: formData,
-//         headers: {
-//           Authorization: `Bearer ${token || ""}`,
-//         },
-//       });
-
-//       if (!res.ok) throw new Error("Failed to submit content");
-
-//       const data = await res.json();
-//       console.log("✅ Content submitted successfully:", data);
-//       alert("Content published!");
-
-//         setTimeout(() => {
-//         navigate('/');
-//       }, 1000);
-//     } catch (err) {
-//       console.error("❌ Error submitting content:", err);
-//       alert("Failed to publish content.");
-//     }
-//   };
-
-//   const handleSubmit = async () => {
-//     try {
-
-//       console.log("Submitting form data:", {
-//   contentType,
-//   title,
-//   description,
-//   ingredients,
-//   steps,
-//   nutrition,
-//   cookTime,
-//   recipeCategory,
-//   recipeType,
-//   token,
-// });
-
-//       const formData = new FormData();
-//       formData.append("contentType", contentType);
-//       formData.append("title", title);
-//       formData.append("description", description);
-
-//       if (user) {
-//         formData.append("user_id", user.user_id.toString());
-//         formData.append("username", user.username);
-//         formData.append("email", user.email);
-//       }
-
-//       if (imageFile) {
-//         formData.append("image", imageFile);
-//       }
-
-//       if (contentType === "recipes") {
-//         formData.append("ingredients", JSON.stringify(ingredients));
-//         formData.append("steps", JSON.stringify(steps));
-//         formData.append("nutrition", JSON.stringify(nutrition));
-//         formData.append("cook_time", cookTime);
-//         formData.append("recipe_category", recipeCategory);
-//         formData.append("recipe_type", recipeType);
-//       } else {
-//         formData.append("content", content);
-//       }
-
-//       const res = await fetch(`${API_BASE_URL}/api/content/${contentType}`, {
-//         method: "POST",
-//         body: formData,
-//         headers: {
-//           Authorization: `Bearer ${token || ""}`,
-//         },
-//       });
-
-//       if (!res.ok) throw new Error("Failed to submit content");
-
-//       const data = await res.json();
-//       console.log("✅ Content submitted successfully:", data);
-//       alert("Content published!");
-
-//       setTimeout(() => {
-//         navigate('/');
-//       }, 1000);
-//     } catch (err) {
-//       console.error("❌ Error submitting content:", err);
-//       alert("Failed to publish content.");
-//     }
-//   };
+  };
 
   const goBack = () => {
     navigate(`/${contentType}`);
@@ -425,20 +324,36 @@ export default function CreateContent() {
 
                 {/* Recipe Category & Type */}
                 <div className="flex gap-4">
-                  <input
-                    type="text"
-                    placeholder="Category (e.g., lunch)"
-                    value={recipeCategory}
-                    onChange={(e) => setRecipeCategory(e.target.value)}
-                    className="w-1/2 p-2 border rounded"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Type (e.g., vegetarian)"
-                    value={recipeType}
-                    onChange={(e) => setRecipeType(e.target.value)}
-                    className="w-1/2 p-2 border rounded"
-                  />
+                    <div className="w-1/2">
+                        <label className="text-lg font-semibold text-gray-800">
+                            Category <RequiredStar />
+                        </label>
+                        <select
+                            value={recipeCategory}
+                            onChange={(e) => setRecipeCategory(e.target.value)}
+                            className="w-full p-2 border rounded"
+                        >
+                            <option value="" disabled>Select a Category</option>
+                            {RECIPE_CATEGORIES.map(cat => (
+                                <option key={cat} value={cat}>{cat}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="w-1/2">
+                        <label className="text-lg font-semibold text-gray-800">
+                            Type <RequiredStar />
+                        </label>
+                        <select
+                            value={recipeType}
+                            onChange={(e) => setRecipeType(e.target.value)}
+                            className="w-full p-2 border rounded"
+                        >
+                            <option value="" disabled>Select a Type</option>
+                            {RECIPE_TYPES.map(type => (
+                                <option key={type} value={type}>{type}</option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
 
                 {/* Ingredients */}
@@ -498,17 +413,36 @@ export default function CreateContent() {
 
             {/* Articles */}
             {contentType === "articles" && (
-              <div>
-                <label className="text-lg font-semibold text-gray-800">
-                  Article Content <RequiredStar />
-                </label>
-                <textarea
-                  placeholder="Write your article..."
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  className="w-full p-2 border rounded h-40"
-                />
-              </div>
+                <div className="flex flex-col gap-4">
+                    {/* Article Content */}
+                    <div>
+                        <label className="text-lg font-semibold text-gray-800">
+                            Article Content <RequiredStar />
+                        </label>
+                        <textarea
+                            placeholder="Write your article..."
+                            value={content}
+                            onChange={(e) => setContent(e.target.value)}
+                            className="w-full p-2 border rounded h-40"
+                        />
+                    </div>
+                    {/* Article Category */}
+                    <div>
+                        <label className="text-lg font-semibold text-gray-800">
+                            Category <RequiredStar />
+                        </label>
+                        <select
+                            value={articleCategory}
+                            onChange={(e) => setArticleCategory(e.target.value)}
+                            className="w-full p-2 border rounded"
+                        >
+                            <option value="" disabled>Select a Category</option>
+                            {ARTICLE_CATEGORIES.map(cat => (
+                                <option key={cat} value={cat}>{cat}</option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
             )}
 
             <hr />

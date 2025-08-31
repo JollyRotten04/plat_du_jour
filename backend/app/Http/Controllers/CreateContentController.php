@@ -95,19 +95,22 @@ class CreateContentController extends Controller
         }
 
         // Handle image upload to specific folders with error handling
-        $imagePath = null;
+        $imageFilename = null;
         if ($request->hasFile('image')) {
             try {
                 Log::info('Processing image upload...');
-                
+
+                // Generate a unique filename to avoid collisions
+                $imageFilename = uniqid() . '_' . $request->file('image')->getClientOriginalName();
+
                 if ($contentType === 'recipes') {
-                    $imagePath = $request->file('image')->store('recipes', 'public');
+                    $request->file('image')->storeAs('recipes', $imageFilename, 'public');
                 } else { // articles
-                    $imagePath = $request->file('image')->store('articlesImage', 'public');
+                    $request->file('image')->storeAs('articleImages', $imageFilename, 'public');
                 }
-                
-                Log::info('Image uploaded successfully: ' . $imagePath);
-                
+
+                Log::info('Image uploaded successfully: ' . $imageFilename);
+
             } catch (\Exception $e) {
                 Log::error('Image upload failed: ' . $e->getMessage());
                 return response()->json(['error' => 'Image upload failed', 'details' => $e->getMessage()], 500);
@@ -124,7 +127,7 @@ class CreateContentController extends Controller
                     'steps'              => $steps,
                     'nutritional_value'  => $nutrition,
                     'recipe_author'      => $request->input('username') ?? 'Anonymous',
-                    'image_path'         => $imagePath,
+                    'image_path'         => $imageFilename, // only filename
                     'recipe_cooktime'    => $request->input('cook_time'),
                     'recipe_category'    => $request->input('recipe_category') ?? '',
                     'recipe_type'        => $request->input('recipe_type') ?? '',
@@ -136,7 +139,6 @@ class CreateContentController extends Controller
 
                 Log::info('Creating recipe with data:', $recipeData);
 
-                // Create the recipe
                 $recipe = Recipes::create($recipeData);
 
                 Log::info('Recipe created successfully with ID: ' . $recipe->recipe_id);
@@ -148,7 +150,7 @@ class CreateContentController extends Controller
                         'title' => $recipe->recipe_name,
                         'type'  => 'recipe',
                         'slug'  => $recipe->recipe_slug,
-                        'image' => $recipe->image_path ? url('storage/'.$recipe->image_path) : null,
+                        'image' => $imageFilename ? url('storage/recipes/' . $imageFilename) : null,
                     ],
                 ], 201);
 
@@ -156,6 +158,13 @@ class CreateContentController extends Controller
                 Log::error('Database error creating recipe: ' . $e->getMessage());
                 Log::error('SQL Error Code: ' . $e->getCode());
                 Log::error('SQL Error Info: ', $e->errorInfo ?? []);
+                
+                if ($e->getCode() === '23000') {
+                    return response()->json([
+                        'error' => 'Duplicate entry',
+                        'details' => 'A recipe with this title already exists. Please choose a different title.'
+                    ], 409);
+                }
                 
                 return response()->json([
                     'error' => 'Database error while creating recipe',
@@ -174,16 +183,19 @@ class CreateContentController extends Controller
             }
 
         } else {
-            // Create an article
             try {
                 $articleData = [
-                    'article_title'      => $request->input('title'),
-                    'article_summary'    => $request->input('description'),
-                    'article_content'    => $request->input('content'),
-                    'article_author'     => $request->input('username') ?? 'Anonymous',
-                    'article_image_path' => $imagePath,
-                    'article_slug'       => Str::slug($request->input('title') . '-' . uniqid()),
+                    'article_title'        => $request->input('title'),
+                    'article_summary'      => $request->input('description'),
+                    'article_content'      => $request->input('content'),
+                    'article_author'       => $request->input('username') ?? 'Anonymous',
+                    'article_image_path'   => $imageFilename, // only filename
+                    'article_slug'         => Str::slug($request->input('title') . '-' . uniqid()),
                     'article_published_at' => now(),
+                    'article_rating'       => $request->input('article_rating', 0),
+                    'review_count'         => $request->input('review_count', 0),
+                    'article_category'     => $request->input('article_category') ?? 'General',
+                    'article_tags'         => $request->input('article_tags') ?? '[]',
                 ];
 
                 Log::info('Creating article with data:', $articleData);
@@ -199,7 +211,7 @@ class CreateContentController extends Controller
                         'title' => $article->article_title,
                         'type'  => 'article',
                         'slug'  => $article->article_slug,
-                        'image' => $article->article_image_path ? url('storage/'.$article->article_image_path) : null,
+                        'image' => $imageFilename ? url('storage/articleImages/' . $imageFilename) : null,
                     ],
                 ], 201);
 
@@ -207,16 +219,23 @@ class CreateContentController extends Controller
                 Log::error('Database error creating article: ' . $e->getMessage());
                 Log::error('SQL Error Code: ' . $e->getCode());
                 
+                if ($e->getCode() === '23000') {
+                    return response()->json([
+                        'error' => 'Duplicate entry',
+                        'details' => 'An article with this title already exists. Please choose a different title.'
+                    ], 409);
+                }
+                
                 return response()->json([
                     'error' => 'Database error while creating article',
                     'details' => $e->getMessage(),
                     'code' => $e->getCode()
                 ], 500);
-                
+
             } catch (\Exception $e) {
                 Log::error('General error creating article: ' . $e->getMessage());
                 Log::error('Stack trace: ' . $e->getTraceAsString());
-                
+
                 return response()->json([
                     'error' => 'Failed to create article',
                     'details' => $e->getMessage()
