@@ -28,9 +28,6 @@ COPY . ./
 # Copy vendor from builder stage
 COPY --from=vendor /app/vendor ./vendor
 
-# Copy recipe images from repo into Laravel storage
-COPY resources/images/recipes /var/www/html/storage/app/public/recipes
-
 # Create storage symlink for public access
 RUN php artisan storage:link
 
